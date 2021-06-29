@@ -7,5 +7,7 @@
 #include <array>
 #include <algorithm>
 #include <memory>
+#include <iostream>
+#include <string>
 
-#include <Definitions.h>
+#include "Definitions.h"

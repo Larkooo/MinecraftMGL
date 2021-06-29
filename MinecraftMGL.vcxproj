@@ -145,12 +145,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Chunk.cpp" />
+    <ClCompile Include="src\Player.cpp" />
+    <ClCompile Include="src\Entity.cpp" />
+    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="include\glm\detail\glm.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\vendor\glad.c" />
     <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Game\Chunk.h" />
+    <ClInclude Include="include\Game\Entity.h" />
+    <ClInclude Include="include\Core\Game.h" />
     <ClInclude Include="include\Definitions.h" />
     <ClInclude Include="include\glad\glad.h" />
     <ClInclude Include="include\GLFW\glfw3.h" />
@@ -440,6 +448,8 @@
     <ClInclude Include="include\Includes.h" />
     <ClInclude Include="include\KHR\khrplatform.h" />
     <ClInclude Include="include\Core\Window.h" />
+    <ClInclude Include="include\Core\World.h" />
+    <ClInclude Include="include\Game\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\glm\detail\func_common.inl" />

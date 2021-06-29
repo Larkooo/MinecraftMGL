@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Definitions.h>
-#include <string>
-
-#include <GLFW/glfw3.h>
+#include "Includes.h"
 
 class Window
 {
@@ -15,7 +12,9 @@ class Window
 	GLFWwindow* m_Window = nullptr;
 
 public:
-	Window(const std::string& title = "Window", i32 width = 800, i32 height = 600, bool vsync = false) : m_Title(title), m_Width(width), m_Height(height), m_VSync(vsync) {}
+	Window(const std::string& title = "Window", i32 width = 800, i32 height = 600, bool vsync = false) : m_Title(title), m_Width(width), m_Height(height), m_VSync(vsync) { std::cout << "Constructor" << std::endl; }
+	//Window(Window&& window);
+	~Window();
 
 	void Init();
 
