@@ -17,6 +17,11 @@ void Game::Init()
 		return;
 	}
 
+	// Set hints
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	// initialize the window and context
 	m_Window->Init();
 
@@ -25,14 +30,17 @@ void Game::Init()
 
 void Game::HandleEvents()
 {
+	glfwPollEvents();
 }
 
 void Game::Update()
 {
+
 }
 
 void Game::Render()
 {
+	glfwSwapBuffers(m_Window->GetWindow());
 }
 
 void Game::Clean()

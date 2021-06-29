@@ -5,6 +5,8 @@ int main()
 	Window window;
 	Game game(window);
 
+	game.Init();
+
 	while (game.IsRunning())
 	{
 		game.HandleEvents();

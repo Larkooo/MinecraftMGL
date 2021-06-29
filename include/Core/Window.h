@@ -20,6 +20,8 @@ public:
 
 	i32 GetWidth();
 	i32 GetHeight();
+	GLFWwindow* GetWindow() { return m_Window; }
+
 	void SetVSync(bool state);
 	bool VSyncEnabled();
 };

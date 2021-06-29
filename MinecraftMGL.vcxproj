@@ -120,6 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,6 +136,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +147,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\IndexBuffer.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Block.cpp" />
     <ClCompile Include="src\Chunk.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Entity.cpp" />
@@ -154,8 +159,11 @@
     <ClCompile Include="src\vendor\glad.c" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\World.cpp" />
+    <ClCompile Include="src\VertexArray.cpp" />
+    <ClCompile Include="src\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Game\Block.h" />
     <ClInclude Include="include\Game\Chunk.h" />
     <ClInclude Include="include\Game\Entity.h" />
     <ClInclude Include="include\Core\Game.h" />
@@ -450,6 +458,10 @@
     <ClInclude Include="include\Core\Window.h" />
     <ClInclude Include="include\Core\World.h" />
     <ClInclude Include="include\Game\Player.h" />
+    <ClInclude Include="include\Graphics\Shader.h" />
+    <ClInclude Include="include\Graphics\IndexBuffer.h" />
+    <ClInclude Include="include\Graphics\VertexArray.h" />
+    <ClInclude Include="include\Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\glm\detail\func_common.inl" />
