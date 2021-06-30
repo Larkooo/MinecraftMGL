@@ -3,11 +3,17 @@
 #include <Includes.h>
 
 #include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 class VertexArray
 {
 	u32 m_Id;
-	std::vector<VertexBuffer> m_VertexBuffers;
 
+public:
+	VertexArray();
+	~VertexArray();
+
+	void Bind();
+	void Unbind();
 };
 

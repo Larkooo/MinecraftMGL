@@ -11,7 +11,7 @@ class Game
 {
 	std::unique_ptr<Window> m_Window = nullptr;
 	World m_World;
-	bool m_Running;
+	bool m_Running = false;
 
 public:
 	Game(const Window& window);
