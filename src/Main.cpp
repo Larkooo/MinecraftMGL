@@ -2,19 +2,18 @@
 
 int main()
 {
-	Window window;
-	Game game(window);
+	Game* game = new Game(std::move(Window("Window", 800, 600)));
 
-	game.Init();
+	game->Init();
 
-	while (game.IsRunning())
+	while (game->IsRunning())
 	{
-		game.HandleEvents();
-		game.Update();
-		game.Render();
+		game->HandleEvents();
+		game->Update();
+		game->Render();
 	}
 
-	game.Clean();
+	game->Clean();
 
 	std::cin.get();
 	return 0;

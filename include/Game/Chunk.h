@@ -6,7 +6,7 @@
 
 class Chunk
 {
-	std::array<std::unique_ptr<Block>, 16 * 16 * 16> m_Blocks;
+	std::array<Block, 16 * 16 * 16> m_Blocks;
 
 public:
 	Chunk() = default;

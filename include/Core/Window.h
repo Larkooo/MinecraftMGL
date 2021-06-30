@@ -12,15 +12,22 @@ class Window
 	GLFWwindow* m_Window = nullptr;
 
 public:
-	Window(const std::string& title = "Window", i32 width = 800, i32 height = 600, bool vsync = false) : m_Title(title), m_Width(width), m_Height(height), m_VSync(vsync) { std::cout << "Constructor" << std::endl; }
-	//Window(Window&& window);
+	Window(const std::string& title = "Window", i32 width = 800, i32 height = 600, bool vsync = true) : m_Title(title), m_Width(width), m_Height(height), m_VSync(vsync)
+	{ 
+		std::cout << "Constructor" << std::endl; 
+	}
+	Window(const Window& other);
+	Window(Window&& other);
 	~Window();
 
 	void Init();
 
 	i32 GetWidth();
 	i32 GetHeight();
-	GLFWwindow* GetWindow() { return m_Window; }
+	GLFWwindow* GetGLFWWindow() { return m_Window; }
+
+	void SetWidth(i32 width) { m_Width = width; }
+	void SetHeight(i32 height) { m_Height = height; }
 
 	void SetVSync(bool state);
 	bool VSyncEnabled();

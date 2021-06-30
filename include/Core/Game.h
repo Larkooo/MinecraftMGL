@@ -9,16 +9,20 @@
 
 class Game
 {
-	std::unique_ptr<Window> m_Window = nullptr;
+	Window m_Window;
 	World m_World;
 	bool m_Running = false;
 
+	static Game* sGame;
 public:
-	Game(const Window& window);
-	~Game();
-	//Game(Window* window);
-	//Game(Window&& window);
+	Game(const Window& window = Window());
+	Game(Window&& window);
+	Game(const Game&) = delete;
+	~Game();	
 
+	static Game* Instance();
+
+	Window& GetWindow() { return m_Window; }
 	bool IsRunning() { return m_Running; }
 
 	void Init();

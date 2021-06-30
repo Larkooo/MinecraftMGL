@@ -1,10 +1,16 @@
 #include "Core/Window.h"
 
-/*Window::Window(Window&& window)
+Window::Window(const Window& other)
 {
+	memcpy(this, &other, sizeof(other));
+}
+
+Window::Window(Window&& other)
+{
+	memcpy(this, &other, sizeof(other));
+	other.m_Window = nullptr;
 	std::cout << "Moved" << std::endl;
-	memcpy(this, &window, sizeof(window));
-}*/
+}
 
 Window::~Window()
 {
@@ -15,7 +21,7 @@ Window::~Window()
 void Window::Init()
 {
 	m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), NULL, NULL);
-	std::cout << m_Window << std::endl;
+
 	if (m_Window == nullptr)
 	{
 		glfwTerminate();

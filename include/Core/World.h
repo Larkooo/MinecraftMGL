@@ -6,7 +6,7 @@
 
 class World
 {
-	std::array<std::unique_ptr<Chunk>, 24> m_Chunks;
+	std::array<Chunk, 24> m_Chunks;
 
 public:
 	World() = default;
