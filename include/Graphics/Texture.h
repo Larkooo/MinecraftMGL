@@ -1,8 +1,15 @@
 #pragma once
 
-#include <Includes.h>
+#include <iostream>
+#include <string>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #define STB_IMAGE_IMPLEMENTATION    
 #include <Utils/stb_image.h>
+
+#include <Definitions.h>
 
 class Texture
 {

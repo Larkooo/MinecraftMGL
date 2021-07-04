@@ -1,19 +1,17 @@
 #include "Core/Game.h"
-#include <glm/glm.hpp>
 
-#include <Graphics/VertexArray.h>
-#include <Graphics/VertexBuffer.h>
-#include <Graphics/Shader.h>
+#include "Core/World.h"
 
 Game* Game::sGame = nullptr;
 
 Game::Game(Window&& window) : m_Window(std::move(window))
 {
+	m_World = std::unique_ptr<World>(new World());
 }
 
 Game::Game(const Window& window) : m_Window(window)
 {
-	//std::cout << &m_World << std::endl;
+	m_World = std::unique_ptr<World>(new World());
 }
 
 
@@ -38,16 +36,26 @@ void Game::Init()
 	// initialize the window and context
 	m_Window.Init();
 
+	glfwSetInputMode(m_Window.GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glViewport(0, 0, m_Window.GetWidth(), m_Window.GetHeight());
+
+	//glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	glDepthFunc(GL_LESS);
 
 	Game::sGame = this;
 
-	auto resizeCallback = [](GLFWwindow* window, int width, int height) {
+	auto resizeCallback = [](GLFWwindow* window, int width, int height)
+	{
 		Game::Instance()->GetWindow().SetWidth(width);
 		Game::Instance()->GetWindow().SetHeight(width);
 		glViewport(0, 0, width, height);
 	};
+
 	glfwSetFramebufferSizeCallback(m_Window.GetGLFWWindow(), resizeCallback);
+
+	m_Projection = glm::perspective(glm::radians(45.0f), (float) m_Window.GetWidth() / m_Window.GetHeight(), 0.1f, 1000.0f);
 
 	m_Running = true;
 }
@@ -61,45 +69,22 @@ Game* Game::Instance()
 
 void Game::HandleEvents()
 {
+	if (glfwWindowShouldClose(m_Window.GetGLFWWindow()) || glfwGetKey(m_Window.GetGLFWWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		m_Running = false;
+	m_World->HandleEvents();
 }
 
 void Game::Update()
 {
-
+	m_World->Update();
 }
 
 void Game::Render()
 {
-	glm::vec2 vertices[] = {
-		 glm::vec2(0.5f, 0.5f),
-		 glm::vec2(-0.5f, -0.5f),
-		 glm::vec2(0.5f, -0.5f)
-	};
-	float fVertices[] = {
-		 -0.5f, -0.5f, 0.0f,
-		  0.5f, -0.5f, 0.0f,
-		  0.0f,  0.5f, 0.0f
-	};
-
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	VertexArray vao;
-	vao.Bind();
-	VertexBuffer vbo(fVertices, sizeof(fVertices));
-	vbo.Bind();
-
-	Shader shader("./res/shaders/triangle.vert", "./res/shaders/triangle.frag");
-	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
-	glEnableVertexAttribArray(0);
-
-	vao.Unbind();
-	
-	vao.Bind();
-
-	shader.Bind();
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	m_World->Render();
 
 	glfwSwapBuffers(m_Window.GetGLFWWindow());
 	glfwPollEvents();

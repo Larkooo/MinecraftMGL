@@ -2,7 +2,7 @@
 
 int main()
 {
-	Game* game = new Game(std::move(Window("Window", 800, 600)));
+	Game* game = new Game(Window("Window", 800, 600));
 
 	game->Init();
 
@@ -15,6 +15,5 @@ int main()
 
 	game->Clean();
 
-	std::cin.get();
 	return 0;
 }
