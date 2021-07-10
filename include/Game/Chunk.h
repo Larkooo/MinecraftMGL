@@ -10,22 +10,27 @@
 class Chunk
 {
 public:
-	static const u32 sBlocks = 16 * 16 * 16;
+	static const u32 sBlocks1D = 16;
 
 private:
-	std::array<Block, sBlocks> m_Blocks;
+	u32 m_Id;
+	std::array<Block*, sBlocks1D * sBlocks1D * sBlocks1D> m_Blocks;
 
 public:
 	std::thread* mThread = nullptr;
 
 public:
 
-	Chunk() = default;
+	Chunk(u32 id) : m_Id(id) 
+	{
+		for (size_t i = 0; i < sBlocks1D * sBlocks1D * sBlocks1D; i++)
+		{
+			m_Blocks[i] = new Block(i);
+		}
+	};
 
-	std::array<Block, 16 * 16 * 16>& GetBlocks() { return m_Blocks; }
+	std::array<Block*, 16 * 16 * 16>& GetBlocks() { return m_Blocks; }
 
-	// generate all the blocks in the chunk
-	void Init();
 	// update and render
 	void Update();
 	void Render();

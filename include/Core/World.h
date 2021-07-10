@@ -8,11 +8,11 @@
 class World
 {
 public:
-	static const u32 sChunks = 4 * 4 * 4;
+	static const u32 sChunks1D = 16;
 
 private:
 	Player m_Player;
-	std::array<Chunk, sChunks> m_Chunks;
+	std::array<Chunk*, sChunks1D * sChunks1D * sChunks1D> m_Chunks;
 
 public:
 	World() = default;

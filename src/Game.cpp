@@ -57,6 +57,10 @@ void Game::Init()
 
 	m_Projection = glm::perspective(glm::radians(45.0f), (float) m_Window.GetWidth() / m_Window.GetHeight(), 0.1f, 1000.0f);
 
+	m_World->Init();
+
+	m_Now = std::chrono::high_resolution_clock::now();
+
 	m_Running = true;
 }
 
@@ -69,6 +73,10 @@ Game* Game::Instance()
 
 void Game::HandleEvents()
 {
+	m_Last = m_Now;
+	m_Now = std::chrono::high_resolution_clock::now();
+	m_DeltaTime = m_Now - m_Last;
+
 	if (glfwWindowShouldClose(m_Window.GetGLFWWindow()) || glfwGetKey(m_Window.GetGLFWWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		m_Running = false;
 	m_World->HandleEvents();

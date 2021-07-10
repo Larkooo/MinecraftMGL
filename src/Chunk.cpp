@@ -1,8 +1,8 @@
 #include "Game/Chunk.h"
 
-void Chunk::Init()
-{
-}
+//#include "Graphics/Mesh.h"
+//
+//#include "Core/World.h"
 
 void Chunk::Update()
 {
@@ -10,4 +10,5 @@ void Chunk::Update()
 
 void Chunk::Render()
 {
+	
 }
