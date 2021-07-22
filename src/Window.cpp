@@ -2,19 +2,30 @@
 
 Window::Window(const Window& other)
 {
-	memcpy(this, &other, sizeof(other));
+	m_Title = other.m_Title;
+	m_Width = other.m_Width;
+	m_Height = other.m_Height;
+	m_VSync = other.m_VSync;
+	m_Window = other.m_Window;
+
+	std::cout << "Copied window" << std::endl;
 }
 
 Window::Window(Window&& other)
 {
-	memcpy(this, &other, sizeof(other));
+	m_Title = other.m_Title;
+	m_Width = other.m_Width;
+	m_Height = other.m_Height;
+	m_VSync = other.m_VSync;
+	m_Window = other.m_Window;
+
 	other.m_Window = nullptr;
-	std::cout << "Moved" << std::endl;
+	std::cout << "Moved window" << std::endl;
 }
 
 Window::~Window()
 {
-	std::cout << "Destroyed" << std::endl;
+	std::cout << "Destroyed window" << std::endl;
 	glfwDestroyWindow(m_Window);
 }
 

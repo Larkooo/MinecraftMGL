@@ -8,7 +8,8 @@
 class World
 {
 public:
-	static const u32 sChunks1D = 16;
+	// Number of chunks per dimension
+	static const u32 sChunks1D = 8;
 
 private:
 	Player m_Player;
@@ -25,5 +26,10 @@ public:
 	void HandleEvents();
 	void Update();
 	void Render();
+
+	Chunk& operator[](size_t index)
+	{
+		return *m_Chunks[index];
+	}
 };
 

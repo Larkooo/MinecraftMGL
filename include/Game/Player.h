@@ -13,6 +13,8 @@ class Player
 public:
 	Player(glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 velocity = { 0.0f, 0.0f, 0.0f });
 
+	glm::vec3 GetPosition() const { return m_Position; }
+	glm::vec3 GetVelocity() const { return m_Velocity; }
 	Camera& GetCamera() { return m_Camera; }
 
 	void HandleEvents();

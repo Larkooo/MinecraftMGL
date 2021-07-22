@@ -4,35 +4,41 @@
 #include <thread>
 
 #include "Block.h"
+#include "Graphics/Mesh.h"
 
 #include "Definitions.h"
 
 class Chunk
 {
 public:
-	static const u32 sBlocks1D = 16;
+	static const u16 sBlocks1D = 16;
 
 private:
-	u32 m_Id;
-	std::array<Block*, sBlocks1D * sBlocks1D * sBlocks1D> m_Blocks;
+	std::array<Block*, sBlocks1D* sBlocks1D* sBlocks1D> m_Blocks;
+	Mesh* m_Mesh = nullptr;
 
 public:
 	std::thread* mThread = nullptr;
 
 public:
 
-	Chunk(u32 id) : m_Id(id) 
-	{
-		for (size_t i = 0; i < sBlocks1D * sBlocks1D * sBlocks1D; i++)
-		{
-			m_Blocks[i] = new Block(i);
-		}
-	};
+	Chunk();
 
-	std::array<Block*, 16 * 16 * 16>& GetBlocks() { return m_Blocks; }
+	std::array<Block*, sBlocks1D * sBlocks1D * sBlocks1D>& GetBlocks() { return m_Blocks; }
+
+	void GenerateMesh();
 
 	// update and render
 	void Update();
-	void Render();
+	void Render(Shader& shader);
+
+	Block& operator[](size_t index)
+	{
+		return *m_Blocks[index];
+	}
+	Block& operator[](glm::vec3 position)
+	{
+		return *m_Blocks[position.x + sBlocks1D * (position.y + sBlocks1D * position.z)];
+	}
 };
 

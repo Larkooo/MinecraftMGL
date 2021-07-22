@@ -61,7 +61,7 @@ void Camera::UpdateVectors()
 	m_Up = glm::normalize(glm::cross(m_Right, m_Direction));
 }
 
-glm::mat4 Camera::GetView()
+glm::mat4 Camera::GetView() const
 {
 	return glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
 }

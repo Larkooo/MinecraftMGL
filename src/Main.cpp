@@ -2,18 +2,18 @@
 
 int main()
 {
-	Game* game = new Game(Window("Window", 800, 600));
+	Game game(Window("Window", 800, 600));
 
-	game->Init();
+	game.Init();
 
-	while (game->IsRunning())
+	while (game.IsRunning())
 	{
-		game->HandleEvents();
-		game->Update();
-		game->Render();
+		game.HandleEvents();
+		game.Update();
+		game.Render();
 	}
 
-	game->Clean();
+	game.Clean();
 
 	return 0;
 }

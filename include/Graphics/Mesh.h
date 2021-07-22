@@ -18,6 +18,12 @@ struct Vertex
 	glm::vec2 textureCoord;
 };
 
+struct Quad
+{
+	glm::vec2 position;
+	glm::vec2 size;
+};
+
 class Mesh
 {
 	std::vector<Vertex> m_Vertices;
@@ -30,14 +36,19 @@ class Mesh
 
 public:
 	Mesh(std::initializer_list<Vertex> vertices, std::initializer_list<u32> indices);
-
-	static Mesh Cube();
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices);
+	Mesh(const Mesh& mesh);
 
 	VertexArray& GetVAO() { return m_VAO; }
 	std::vector<Vertex>& GetVertices() { return m_Vertices; }
 	std::vector<u32>& GetIndices() { return m_Indices; }
+
 	/*std::list<texture> GetTextures() { return m_textures; }*/
 
 	void Render(Shader& shader);
+
+public:
+	static Mesh Cube();
+	// TODO : static Mesh Cuboid(u32 width, u32 height, u32 depth);
 };
 

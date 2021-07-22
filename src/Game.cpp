@@ -39,10 +39,12 @@ void Game::Init()
 	glfwSetInputMode(m_Window.GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glViewport(0, 0, m_Window.GetWidth(), m_Window.GetHeight());
 
-	//glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_
+	// 
+	// );
+	//glCullFace(GL_CCW);
 
-	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
 
 	Game::sGame = this;
 
@@ -55,9 +57,10 @@ void Game::Init()
 
 	glfwSetFramebufferSizeCallback(m_Window.GetGLFWWindow(), resizeCallback);
 
-	m_Projection = glm::perspective(glm::radians(45.0f), (float) m_Window.GetWidth() / m_Window.GetHeight(), 0.1f, 1000.0f);
-
 	m_World->Init();
+
+	// Create the projection matrix using the player fov
+	m_Projection = glm::perspective(glm::radians(m_World->GetPlayer().GetCamera().GetFov()), (float)m_Window.GetWidth() / m_Window.GetHeight(), 0.1f, 1000.0f);
 
 	m_Now = std::chrono::high_resolution_clock::now();
 
@@ -101,4 +104,5 @@ void Game::Render()
 void Game::Clean()
 {
 	glfwTerminate();
+	memset(m_Window.GetGLFWWindow(), 0, sizeof(m_Window.GetGLFWWindow()));
 }

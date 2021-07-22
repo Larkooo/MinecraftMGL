@@ -5,6 +5,9 @@
 
 Mesh::Mesh(std::initializer_list<Vertex> vertices, std::initializer_list<u32> indices) : m_Vertices(vertices), m_Indices(indices)
 {
+	m_Vertices = vertices;
+	m_Indices = indices;
+
 	m_VAO.Bind();
 	
 	m_VBO.Bind();
@@ -24,67 +27,183 @@ Mesh::Mesh(std::initializer_list<Vertex> vertices, std::initializer_list<u32> in
 	m_VAO.Unbind();
 }
 
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices)
+{
+	m_Vertices = vertices;
+	m_Indices = indices;
+
+	m_VAO.Bind();
+
+	m_VBO.Bind();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), m_Vertices.data(), GL_STATIC_DRAW);
+
+	// vertices
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+	// normals
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+	// texture coordinates
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureCoord));
+
+	m_VBO.Unbind();
+	m_VAO.Unbind();
+}
+
+Mesh::Mesh(const Mesh& mesh)
+{
+	m_Vertices = mesh.m_Vertices;
+	m_Indices = mesh.m_Indices;
+
+	m_VAO = mesh.m_VAO;
+	m_VBO = mesh.m_VBO;
+	m_IBO = mesh.m_IBO;
+}
+
 Mesh Mesh::Cube()
 {
+
     std::initializer_list<Vertex> vertices = {
-        // positions          // normals           // texture coords
-        {{-0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f},  {0.0f,  0.0f}},
-        {{ 0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f},  {1.0f,  0.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f},  {1.0f,  1.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f},  {1.0f,  1.0f}},
-        {{-0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f},  {0.0f,  1.0f}},
-        {{-0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f},  {0.0f,  0.0f}},
-        
-        {{-0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f},  {0.0f,  0.0f}},
-        {{ 0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f},  {1.0f,  0.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f},  {1.0f,  1.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f},  {1.0f,  1.0f}},
-        {{-0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f},  {0.0f,  1.0f}},
-        {{-0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f},  {0.0f,  0.0f}},
-        
-        {{-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f},  {1.0f,  0.0f}},
-        {{-0.5f,  0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f},  {1.0f,  1.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f},  {0.0f,  1.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f},  {0.0f,  1.0f}},
-        {{-0.5f, -0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f},  {0.0f,  0.0f}},
-        {{-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f},  {1.0f,  0.0f}},
-        
-        {{ 0.5f,  0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f},  {1.0f,  0.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f},  {1.0f,  1.0f}},
-        {{ 0.5f, -0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f},  {0.0f,  1.0f}},
-        {{ 0.5f, -0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f},  {0.0f,  1.0f}},
-        {{ 0.5f, -0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f},  {0.0f,  0.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f},  {1.0f,  0.0f}},
-        
-        {{-0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f},  {0.0f,  1.0f}},
-        {{ 0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f},  {1.0f,  1.0f}},
-        {{ 0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f},  {1.0f,  0.0f}},
-        {{ 0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f},  {1.0f,  0.0f}},
-        {{-0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f},  {0.0f,  0.0f}},
-        {{-0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f},  {0.0f,  1.0f}},
-        
-        {{-0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f},  {0.0f,  1.0f}},
-        {{ 0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f},  {1.0f,  1.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f},  {1.0f,  0.0f}},
-        {{ 0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f},  {1.0f,  0.0f}},
-        {{-0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f},  {0.0f,  0.0f}},
-        {{-0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f},  {0.0f,  1.0f}}
+		 // Back
+		{ {-0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 0.f} },
+		{ { 0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 0.f} },
+		{ {-0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 1.f} },
+		{ { 0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 0.f} },
+		{ { 0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 1.f} },
+		{ {-0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 1.f} },
+
+		// Front
+		{ { 0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 0.f} },
+		{ {-0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 0.f} },
+		{ {-0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 1.f} },
+		{ { 0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 1.f} },
+		{ { 0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 0.f} },
+		{ {-0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 1.f} },
+
+		// Left
+		{ {-0.5f,  0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 0.f} },
+		{ {-0.5f,  0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 0.f} },
+		{ {-0.5f, -0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 1.f} },
+		{ {-0.5f,  0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 0.f} },
+		{ {-0.5f, -0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 1.f} },
+		{ {-0.5f, -0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 1.f} },
+		  
+		// Right
+		{ { 0.5f,  0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 0.f} },
+		{ { 0.5f,  0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 0.f} },
+		{ { 0.5f, -0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 1.f} },
+		{ { 0.5f, -0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 1.f} },
+		{ { 0.5f,  0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 0.f} },
+		{ { 0.5f, -0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 1.f} },
+		  
+		// Top 
+		{ { 0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{1.f, 0.f} },
+		{ {-0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{0.f, 0.f} },
+		{ {-0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{0.f, 1.f} },
+		{ { 0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{1.f, 0.f} },
+		{ {-0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{0.f, 1.f} },
+		{ { 0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{1.f, 1.f} },
+		  
+		// Bottom
+		{ { 0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{0.f, 0.f} },
+		{ {-0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{1.f, 1.f} },
+		{ {-0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{1.f, 0.f} },
+		{ { 0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{0.f, 0.f} },
+		{ { 0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{0.f, 1.f} },
+		{ {-0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{1.f, 1.f} }
 	};
 
     std::initializer_list<u32> indices = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
+        0, 1, 2, 3, 4, 5, 
+		6, 7, 8, 9, 10, 11, 
+		12, 13, 14, 15, 16, 17,
+		18, 19, 20, 21, 22, 23,
+		24, 25, 26, 27, 28, 29, 
+		30, 31, 32, 33, 34, 35
     };
         
     return Mesh(vertices, indices);
 }
 
+//Mesh Mesh::Cuboid(u32 width, u32 height, u32 depth)
+//{
+//	Vertex corners[8];
+//
+//	//corners[0] = Vertex()
+//
+//	std::initializer_list<Vertex> vertices = {
+//		// Back
+//	   { {-0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 0.f} },
+//	   { { 0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 0.f} },
+//	   { {-0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 1.f} },
+//	   { { 0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 0.f} },
+//	   { { 0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 1.f} },
+//	   { {-0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 1.f} },
+//
+//	   // Front
+//	   { { 0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 0.f} },
+//	   { {-0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 0.f} },
+//	   { {-0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 1.f} },
+//	   { { 0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 1.f} },
+//	   { { 0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 0.f} },
+//	   { {-0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 1.f} },
+//
+//	   // Left
+//	   { {-0.5f,  0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 0.f} },
+//	   { {-0.5f,  0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 0.f} },
+//	   { {-0.5f, -0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 1.f} },
+//	   { {-0.5f,  0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 0.f} },
+//	   { {-0.5f, -0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 1.f} },
+//	   { {-0.5f, -0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 1.f} },
+//
+//	   // Right
+//	   { { 0.5f,  0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 0.f} },
+//	   { { 0.5f,  0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 0.f} },
+//	   { { 0.5f, -0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 1.f} },
+//	   { { 0.5f, -0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 1.f} },
+//	   { { 0.5f,  0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 0.f} },
+//	   { { 0.5f, -0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 1.f} },
+//
+//	   // Top 
+//	   { { 0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{1.f, 0.f} },
+//	   { {-0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{0.f, 0.f} },
+//	   { {-0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{0.f, 1.f} },
+//	   { { 0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{1.f, 0.f} },
+//	   { {-0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{0.f, 1.f} },
+//	   { { 0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{1.f, 1.f} },
+//
+//	   // Bottom
+//	   { { 0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{0.f, 0.f} },
+//	   { {-0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{1.f, 1.f} },
+//	   { {-0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{1.f, 0.f} },
+//	   { { 0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{0.f, 0.f} },
+//	   { { 0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{0.f, 1.f} },
+//	   { {-0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{1.f, 1.f} }
+//	};
+//
+//	std::initializer_list<u32> indices = {
+//		0, 1, 2, 3, 4, 5,
+//		6, 7, 8, 9, 10, 11,
+//		12, 13, 14, 15, 16, 17,
+//		18, 19, 20, 21, 22, 23,
+//		24, 25, 26, 27, 28, 29,
+//		30, 31, 32, 33, 34, 35
+//	};
+//
+//	return Mesh(vertices, indices);
+//}
+
 void Mesh::Render(Shader& shader)
 {	
+	/*glPointSize(3.0f);*/
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     shader.Bind();
 
     shader.Set("uProj", Game::Instance()->GetProjection());
     shader.Set("uView", Game::Instance()->GetWorld().GetPlayer().GetCamera().GetView());
 
 	m_VAO.Bind();
-	glDrawElements(GL_TRIANGLES, m_Vertices.size(), GL_UNSIGNED_INT, m_Indices.data());
+	glDrawElements(GL_TRIANGLES, (GLsizei) m_Vertices.size(), GL_UNSIGNED_INT, m_Indices.data());
 }

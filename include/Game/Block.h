@@ -2,21 +2,28 @@
 
 #include "Definitions.h"
 
-enum class BlockType {
-	AIR = 0,
-	DIRT = 1
-};
-
 class Block
 {
-	u32 m_Id;
-	BlockType m_Type;
+public:
+	enum class Type {
+		AIR = 0,
+		DIRT = 1,
+		STONE = 2,
+		OBSIDIAN = 3
+	};
+
+private:
+	Type m_Type;
 
 public:
-	Block(u32 id) : m_Id(id), m_Type(BlockType::DIRT) {};
-	Block() = delete;
+	Block(Type type = Type::DIRT) : m_Type(type) {};
 
-	u32 GetId() { return m_Id; }
-	BlockType GetType() { return m_Type; }
+	bool IsSolid();
+	Type GetType() { return m_Type; }
+
+	bool operator==(const Block& other)
+	{
+		return this->m_Type == other.m_Type;
+	}
 };
 
