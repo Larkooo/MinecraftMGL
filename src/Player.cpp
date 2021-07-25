@@ -30,7 +30,7 @@ void Player::Update()
 	// Update rotation
 	m_Camera.Update();
 
-	std::cout << m_Position.x << " " << m_Position.y << " " << m_Position.z << std::endl;
+	//std::cout << m_Position.x << " " << m_Position.y << " " << m_Position.z << std::endl;
 } 
 
 void Player::Render()

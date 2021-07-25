@@ -8,13 +8,26 @@
 
 #include <thread>
 
+World::~World()
+{
+	m_InstancingThread->join();
+}
+
 void World::Init()
 {
-	for (size_t i = 0; i < sChunks1D * sChunks1D * sChunks1D; i++)
+	for (u32 x = 0; x < sChunks1D; x++)
 	{
-		m_Chunks[i] = new Chunk;
-		m_Chunks[i]->GenerateMesh();
+		for (u32 y = 0; y < sChunks1D; y++)
+		{
+			for (u32 z = 0; z < sChunks1D; z++)
+			{
+				m_Chunks[x + sChunks1D * (y + sChunks1D * z)] = new Chunk(this, { x, y, z });
+			}
+		}
 	}
+
+	// block instancing thread
+	m_InstancingThread = std::make_unique<std::thread>(std::thread([&] {for (Chunk* chunk : m_Chunks) chunk->InstanceBlocks(); }));
 }
 
 void World::HandleEvents()
@@ -39,10 +52,10 @@ void World::Render()
 		{
 			for (u32 z = 0; z < sChunks1D; z++)
 			{
-				glm::mat4 model(1.0f);
+				/*glm::mat4 model(1.0f);
 				model = glm::translate(model, glm::vec3(x * Chunk::sBlocks1D, y * Chunk::sBlocks1D, z * Chunk::sBlocks1D));
 
-				shader.Set("uModel", model);
+				shader.Set("uModel", model);*/
 
 				m_Chunks[x + sChunks1D * (y + sChunks1D * z)]->Render(shader);
 			}

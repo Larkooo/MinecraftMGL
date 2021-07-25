@@ -9,14 +9,18 @@ class World
 {
 public:
 	// Number of chunks per dimension
-	static const u32 sChunks1D = 1;
+	static const u32 sChunks1D = 4;
 
 private:
 	Player m_Player;
-	std::array<Chunk*, sChunks1D * sChunks1D * sChunks1D> m_Chunks;
+	std::array<Chunk*, sChunks1D* sChunks1D* sChunks1D> m_Chunks = { nullptr };
+
+	// instancing thread
+	std::unique_ptr<std::thread> m_InstancingThread = nullptr;
 
 public:
-	World() { m_Chunks = { nullptr }; }
+	World() = default;
+	~World();
 
 	Player& GetPlayer() { return m_Player; }
 
@@ -30,6 +34,10 @@ public:
 	Chunk& operator[](size_t index)
 	{
 		return *m_Chunks[index];
+	}
+	Chunk& operator[](glm::vec3 position)
+	{
+		return *m_Chunks[position.x + sChunks1D * (position.y + sChunks1D * position.z)];
 	}
 };
 

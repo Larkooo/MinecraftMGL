@@ -3,8 +3,7 @@
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
-in vec2 Tile;
-in vec2 Factor;
+in mat3x2 Tile;
 
 uniform sampler2D uTexture;
 
@@ -37,13 +36,22 @@ vec4 SubTextureTile(vec2 uv, vec4 rect, vec2 factor)
 
 void main()
 {
-    //vec2 uv = gl_FragCoord.xy / 800.0f;
-    vec2 factor = abs(Factor);
-    if (factor.x == 0)
-        factor.x = 1;
-    if (Factor.y == 0)
-        factor.y = 1;
+    vec2 tile = vec2(-1);
 
-	gl_FragColor = SubTextureTile(TexCoords, vec4((Tile * 64.0f) / 1024.0f, 64.0f / 1024.0f, 64.0f / 1024.0f), factor);
-    //gl_FragColor = vec4(Normal, 1.0f);
+    if (Normal.x < 0 || Normal.x > 0 || Normal.z < 0 || Normal.z > 0)
+        tile = Tile[1];
+    else if (Normal.y > 0)
+        tile = Tile[0];
+    else if (Normal.y < 0)
+        tile = Tile[2];
+
+    if (tile != -1)
+    {
+        vec2 coords = tile + TexCoords;
+        gl_FragColor = texture(uTexture, (coords * 64) / 1024);
+    }
+    else
+    {
+        gl_FragColor = vec4(vec3(0), 1);
+    }
 }

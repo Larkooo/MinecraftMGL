@@ -15,14 +15,13 @@ public:
 		STONE = 3,
 		TNT = 4
 	};
-
+	
 	struct Texture
 	{
 		glm::vec2 mTop;
 		glm::vec2 mSide;
 		glm::vec2 mBottom;
 	};
-
 	inline static const std::unordered_map<Block::Type, Block::Texture, std::hash<Type>> Map = {
 			{ Type::DIRT, { { 2, 0 }, { 2, 0 }, { 2, 0 } } },
 			{ Type::WOOD, { { 5, 1 }, { 4, 1 }, { 5, 1 } } },

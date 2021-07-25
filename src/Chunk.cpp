@@ -2,17 +2,250 @@
 
 #include "Graphics/MeshConstructor.h"
 #include "Core/Game.h"
+#include "Core/World.h"
 
 #include <functional>
 #include <map>
 
-Chunk::Chunk()
+Chunk::Chunk(World* world, glm::vec3 pos) : m_World(world), m_Position(pos)
 {
 	srand(time(0));
 	for (size_t i = 0; i < sBlocks1D * sBlocks1D * sBlocks1D; i++)
 	{
-		m_Blocks[i] = new Block((Block::Type) (rand() % 3));
+		m_Blocks[i] = new Block((Block::Type) (rand() % 4));
 	}
+}
+
+void Chunk::InstanceBlocks()
+{
+	auto airBlockArounds = [&](glm::vec3 position)
+	{
+		// 0 = x, 1 = y, 2 = z
+		for (u8 axis = 0; axis < 3; axis++)
+		{
+			glm::vec3 frontBlock = position, backBlock = position;
+			frontBlock[axis]++, backBlock[axis]--;
+
+			for (u8 saxis = 0; saxis < 3; saxis++)
+			{
+				glm::vec3 otherChunk, otherBlock;
+				if (frontBlock[saxis] < 0)
+				{
+					otherChunk = m_Position; otherChunk[saxis]--;
+					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sChunks1D - 1)
+						return true;
+
+					otherBlock = frontBlock; otherBlock[saxis] = sBlocks1D - 1;
+					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
+						return true;
+					goto skip;
+				}
+				else if (frontBlock[saxis] > sBlocks1D - 1)
+				{
+					otherChunk = m_Position; otherChunk[saxis]++;
+					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sChunks1D - 1)
+						return true;
+
+					otherBlock = frontBlock; otherBlock[saxis] = 0;
+					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
+						return true;
+					goto skip;
+				}
+
+				if (backBlock[saxis] < 0)
+				{
+					otherChunk = m_Position; otherChunk[saxis]--;
+					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sChunks1D - 1)
+						return true;
+
+					otherBlock = backBlock; otherBlock[saxis] = sBlocks1D - 1;
+					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
+						return true;
+					goto skip;
+				}
+				else if (backBlock[saxis] > sBlocks1D - 1)
+				{
+					otherChunk = m_Position; otherChunk[saxis]++;
+					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sChunks1D - 1)
+						return true;
+
+					otherBlock = backBlock; otherBlock[saxis] = 0;
+					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
+						return true;
+					goto skip;
+				}
+			}
+
+			if (!(*this)[frontBlock].IsSolid())
+				return true;
+			else if (!(*this)[backBlock].IsSolid())
+				return true;
+
+		skip:
+			{}
+		}
+		return false;
+	};
+
+	//auto airBlockAround = [&](glm::uvec3 position)
+	//{
+	//	// check neighbor chunks
+	//	{
+	//		if (m_Position.x > 0 && m_Position.x < World::sChunks1D - 1)
+	//			switch (position.x)
+	//			{
+	//			case 0:
+	//			{
+	//				//std::cout << " haha" << std::endl;
+	//				Chunk otherChunk = (*m_World)[{ m_Position.x - 1, m_Position.y, m_Position.z }];
+	//				//std::cout << (m_Position.x * sBlocks1D) + position.x << " " << (m_Position.y * sBlocks1D) + position.y << " " << (m_Position.z * sBlocks1D) + position.z << std::endl;
+	//				//std::cout << (otherChunk.GetPosition().x * sBlocks1D) + position.x << " " << (otherChunk.GetPosition().y * sBlocks1D) + position.y << " " << (otherChunk.GetPosition().z * sBlocks1D) + position.z << std::endl;
+	//				if (!otherChunk[{ sBlocks1D - 1, position.y, position.z }].IsSolid())
+	//				{
+	//					//std::cout << " haha" << std::endl;
+	//					return true;
+	//				}
+	//					
+	//				break;
+	//			}
+	//			case sBlocks1D - 1:
+	//			{
+	//				Chunk otherChunk = (*m_World)[{ m_Position.x + 1, m_Position.y, m_Position.z }];
+	//				if (!otherChunk[{ 0, position.y, position.z }].IsSolid())
+	//					return true;
+	//				break;
+	//			}
+	//			}
+	//		if (m_Position.y > 0 && m_Position.y < World::sChunks1D - 1)
+	//			switch (position.y)
+	//			{
+	//			case 0:
+	//			{
+	//				Chunk otherChunk = (*m_World)[{ m_Position.x, m_Position.y - 1, m_Position.z }];
+	//				if (!otherChunk[{ position.x, sBlocks1D - 1, position.z }].IsSolid())
+	//					return true;
+	//				break;
+	//			}
+	//			case sBlocks1D - 1:
+	//			{
+	//				Chunk otherChunk = (*m_World)[{ m_Position.x, m_Position.y + 1, m_Position.z }];
+	//				if (!otherChunk[{ position.x, 0, position.z }].IsSolid())
+	//					return true;
+	//				break;
+	//			}
+	//			}
+	//		if (m_Position.z > 0 && m_Position.z < World::sChunks1D - 1)
+	//			switch (position.z)
+	//			{
+	//			case 0:
+	//			{
+	//				Chunk otherChunk = (*m_World)[{ m_Position.x, m_Position.y, m_Position.z + 1 }];
+	//				if (!otherChunk[{ position.x, position.y, sBlocks1D - 1 }].IsSolid())
+	//					return true;
+	//				break;
+	//			}
+	//			case sBlocks1D - 1:
+	//			{
+	//				Chunk otherChunk = (*m_World)[{ m_Position.x, m_Position.y, m_Position.z - 1 }];
+	//				if (!otherChunk[{ position.x, position.y, 0 }].IsSolid())
+	//					return true;
+	//				break;
+	//			}
+	//			}
+	//	}
+
+	//	for (i8 x = -1; x <= 1; x++)
+	//	{
+	//		for (i8 y = -1; y <= 1; y++)
+	//		{
+	//			for (i8 z = -1; z <= 1; z++)
+	//			{
+	//				glm::uvec3 pos = { position.x + x, position.y + y, position.z + z };
+
+	//				if (pos.x < 0)
+	//				{
+	//					Chunk otherChunk = (*m_World)[{ m_Position.x - 1, m_Position.y, m_Position.z }];
+	//					if (!otherChunk[])
+	//				}
+
+	//				if (!m_Blocks[pos.x + sBlocks1D * (pos.y + sBlocks1D * pos.z)]->IsSolid())
+	//					return true;
+	//			}
+	//		}
+	//	}
+	//	return false;
+	//};
+
+	for (u32 x = 0; x < sBlocks1D; x++)
+	{
+		for (u32 y = 0; y < sBlocks1D; y++)
+		{
+			for (u32 z = 0; z < sBlocks1D; z++)
+			{
+				if (!airBlockArounds({ x, y, z }) || !(*this)[{ x, y, z }].IsSolid())
+					continue;
+
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, { (m_Position.x * sBlocks1D) + x, (m_Position.y * sBlocks1D) + y, (m_Position.z * sBlocks1D) + z });
+
+				Block::Type bType = (*this)[{ x, y, z }].GetType();
+
+				Block::Texture tex = Block::Map.at(bType);
+
+				m_InstancedBlocks.emplace_back(model, glm::mat3x2{ tex.mTop, tex.mSide, tex.mBottom });
+			}
+		}
+	}
+}
+
+void Chunk::Update()
+{
+}
+
+void Chunk::Render(Shader& shader)
+{
+	static Mesh cubeMesh = Mesh::Cube();
+
+	cubeMesh.GetVAO().Bind();
+
+	VertexBuffer buffer(m_InstancedBlocks.data(), m_InstancedBlocks.size() * sizeof(std::pair<glm::mat4, glm::mat3x2>));
+
+	// model matrix
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), 0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)sizeof(glm::vec4));
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(2 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(3 * sizeof(glm::vec4)));
+
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+	// tiles
+	glEnableVertexAttribArray(7);
+	glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(sizeof(glm::mat4)));
+	glEnableVertexAttribArray(8);
+	glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(sizeof(glm::mat4) + sizeof(glm::vec2)));
+	glEnableVertexAttribArray(9);
+	glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(sizeof(glm::mat4) + (2 * sizeof(glm::vec2))));
+
+	glVertexAttribDivisor(7, 1);
+	glVertexAttribDivisor(8, 1);
+	glVertexAttribDivisor(9, 1);
+
+	shader.Bind();
+
+	shader.Set("uProj", Game::Instance()->GetProjection());
+	shader.Set("uView", m_World->GetPlayer().GetCamera().GetView());
+
+	Game::Instance()->GetTextureMap().Bind();
+	shader.Set("uTexture", glm::uvec1{ 0 });
+
+	glDrawElementsInstanced(GL_TRIANGLES, cubeMesh.GetIndices().size(), GL_UNSIGNED_INT, cubeMesh.GetIndices().data(), m_InstancedBlocks.size());
 }
 
 //void Chunk::GenerateMesh()
@@ -336,15 +569,3 @@ Chunk::Chunk()
 //		}
 //	}
 //}
-
-void Chunk::Update()
-{
-}
-
-void Chunk::Render(Shader& shader)
-{
-	Game::Instance()->GetTextureMap().Bind();
-	shader.Set("uTexture", glm::uvec1(0));
-	m_Mesh->Render(shader);
-	Game::Instance()->GetTextureMap().Unbind();
-}
