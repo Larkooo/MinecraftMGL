@@ -611,8 +611,8 @@
     <None Include="include\glm\gtx\vector_angle.inl" />
     <None Include="include\glm\gtx\vector_query.inl" />
     <None Include="include\glm\gtx\wrap.inl" />
-    <None Include="res\shaders\triangle.frag" />
-    <None Include="res\shaders\triangle.vert" />
+    <None Include="res\shaders\block.frag" />
+    <None Include="res\shaders\block.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
