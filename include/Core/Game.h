@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Window.h"
+#include "Graphics/Texture.h"
 
 class World;
 
@@ -17,6 +18,7 @@ class Game
 {
 	Window m_Window;
 	std::unique_ptr<World> m_World = nullptr;
+	std::unique_ptr<Texture> m_TextureMap = nullptr;
 	bool m_Running = false;
 
 	// Rendering
@@ -44,6 +46,7 @@ public:
 	Window& GetWindow() { return m_Window; }
 	glm::mat4 GetProjection() const { return m_Projection; }
 	std::chrono::duration<float> GetDeltaTime() const { return m_DeltaTime; }
+	Texture& GetTextureMap() { return *m_TextureMap; }
 
 	bool IsRunning() { return m_Running; }
 

@@ -2,27 +2,14 @@
 
 #include <glm/glm.hpp>
 
-#include <Graphics/VertexArray.h>
-#include <Graphics/VertexBuffer.h>
-#include <Graphics/IndexBuffer.h>
-//#include <Graphics/Texture.h>
-#include <Graphics/Shader.h>
-#include <Definitions.h>
+#include "Graphics/VertexArray.h"
+#include "Graphics/VertexBuffer.h"
+#include "Graphics/IndexBuffer.h"
+#include "Graphics/Shader.h"
+
+#include "Definitions.h"
 
 #include <list>
-
-struct Vertex
-{
-	glm::vec3 position;
-	glm::vec3 normal;
-	glm::vec2 textureCoord;
-};
-
-struct Quad
-{
-	glm::vec2 position;
-	glm::vec2 size;
-};
 
 class Mesh
 {

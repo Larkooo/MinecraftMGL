@@ -29,7 +29,9 @@ void Player::Update()
 	m_Camera.SetPosition(m_Position + glm::vec3(0.0f, 0.5f, 0.0f));
 	// Update rotation
 	m_Camera.Update();
-}
+
+	std::cout << m_Position.x << " " << m_Position.y << " " << m_Position.z << std::endl;
+} 
 
 void Player::Render()
 {

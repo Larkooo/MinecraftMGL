@@ -1,7 +1,10 @@
 #include "Game/Chunk.h"
+
 #include "Graphics/MeshConstructor.h"
+#include "Core/Game.h"
 
 #include <functional>
+#include <map>
 
 Chunk::Chunk()
 {
@@ -12,117 +15,175 @@ Chunk::Chunk()
 	}
 }
 
-void Chunk::GenerateMesh()
-{
-	MeshConstructor meshConstructor;
-
-	u8 direction, workAxis1, workAxis2;
-
-	std::array<std::array<bool, sBlocks1D>, sBlocks1D> merged;
-
-	glm::vec3 startPos, currPos, quadSize, m, n, offsetPos;
-	std::vector<Vertex> vertices;
-
-	Block* startBlock = nullptr;
-
-	auto IsBlockFaceVisible = [&](glm::vec3 blockPosition, int axis, bool backFace) {
-		blockPosition[axis] += backFace ? -1 : 1;
-		if (blockPosition.x < 0 || blockPosition.x > sBlocks1D - 1
-			|| blockPosition.y < 0 || blockPosition.y > sBlocks1D - 1
-			|| blockPosition.z < 0 || blockPosition.z > sBlocks1D - 1)
-			return true;
-		return !(*this)[blockPosition].IsSolid();
-	};
-
-	auto CompareStep = [&](glm::vec3 a, glm::vec3 b, int direction, bool backFace) {
-		Block& blockA = (*this)[a];
-		Block& blockB = (*this)[b];
-
-		return blockA == blockB && blockB.IsSolid() && IsBlockFaceVisible(b, direction, backFace);
-	};
-
-	// Iterate over each face of the blocks.
-	for (u8 face = 0; face < 6; face++) 
-	{
-		bool isBackFace = face > 2;
-
-		direction = face % 3;
-		workAxis1 = (direction + 1) % 3;
-		workAxis2 = (direction + 2) % 3;
-
-		startPos = glm::vec3();
-		currPos = glm::vec3();
-
-		// Iterate over the chunk layer by layer.
-		for (startPos[direction] = 0; startPos[direction] < sBlocks1D; startPos[direction]++)
-		{
-			memset(merged.data(), 0, sizeof(merged));
-
-			// Build the slices of the mesh.
-			for (startPos[workAxis1] = 0; startPos[workAxis1] < sBlocks1D; startPos[workAxis1]++) {
-				for (startPos[workAxis2] = 0; startPos[workAxis2] < sBlocks1D; startPos[workAxis2]++) {
-					startBlock = &(*this)[startPos];
-
-					// If this block has already been merged, is air, or not visible skip it.
-					if (merged[startPos[workAxis1]][startPos[workAxis2]] || !startBlock->IsSolid() || !IsBlockFaceVisible(startPos, direction, isBackFace)) 
-					{
-						continue;
-					}
-
-					// reset work var
-					quadSize = glm::vec3();
-
-					// Figure out the width, then save it
-					for (currPos = startPos, currPos[workAxis2]++; currPos[workAxis2] < sBlocks1D && CompareStep(startPos, currPos, direction, isBackFace) && !merged[currPos[workAxis1]][currPos[workAxis2]]; currPos[workAxis2]++) {}
-					quadSize[workAxis2] = currPos[workAxis2] - startPos[workAxis2];
-
-					// Figure out the height, then save it
-					for (currPos = startPos, currPos[workAxis1]++; currPos[workAxis1] < sBlocks1D && CompareStep(startPos, currPos, direction, isBackFace) && !merged[currPos[workAxis1]][currPos[workAxis2]]; currPos[workAxis1]++) {
-						for (currPos[workAxis2] = startPos[workAxis2]; currPos[workAxis2] < sBlocks1D && CompareStep(startPos, currPos, direction, isBackFace) && !merged[currPos[workAxis1]][currPos[workAxis2]]; currPos[workAxis2]++) {}
-
-						// If we didn't reach the end then its not a good add.
-						if (currPos[workAxis2] - startPos[workAxis2] < quadSize[workAxis2]) {
-							break;
-						}
-						else {
-							currPos[workAxis2] = startPos[workAxis2];
-						}
-					}
-					quadSize[workAxis1] = currPos[workAxis1] - startPos[workAxis1];
-
-					// Now we add the quad to the mesh
-					m = glm::vec3();
-					m[workAxis1] = quadSize[workAxis1];
-					n = glm::vec3();
-					n[workAxis2] = quadSize[workAxis2];
-
-					// We need to add a slight offset when working with front faces.
-					offsetPos = startPos;
-					offsetPos[direction] += isBackFace ? 0 : 1;
-
-					//Draw the face to the mesh
-					vertices = {
-						{ offsetPos },
-						{ offsetPos + m },
-						{ offsetPos + m + n },
-						{ offsetPos + n }
-					};
-
-					meshConstructor.AddQuad(vertices, isBackFace);
-
-					// Mark it merged
-					for (int f = 0; f < quadSize[workAxis1]; f++) {
-						for (int g = 0; g < quadSize[workAxis2]; g++) {
-							merged[startPos[workAxis1] + f][startPos[workAxis2] + g] = true;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	m_Mesh = meshConstructor.ToMesh();
-}
+//void Chunk::GenerateMesh()
+//{
+//	MeshConstructor meshConstructor;
+//
+//	u8 direction, workAxis1, workAxis2;
+//
+//	std::array<std::array<bool, sBlocks1D>, sBlocks1D> merged;
+//
+//	glm::vec3 startPos, currPos, quadSize, m, n, offsetPos;
+//	std::vector<Vertex> vertices;
+//
+//	Block* startBlock = nullptr;
+//
+//	auto IsBlockFaceVisible = [&](glm::vec3 blockPosition, int axis, bool backFace) {
+//		blockPosition[axis] += backFace ? -1 : 1;
+//		if (blockPosition.x < 0 || blockPosition.x > sBlocks1D - 1
+//			|| blockPosition.y < 0 || blockPosition.y > sBlocks1D - 1
+//			|| blockPosition.z < 0 || blockPosition.z > sBlocks1D - 1)
+//			return true;
+//		return !(*this)[blockPosition].IsSolid();
+//	};
+//
+//	auto CompareStep = [&](glm::vec3 a, glm::vec3 b, int direction, bool backFace) {
+//		Block& blockA = (*this)[a];
+//		Block& blockB = (*this)[b];
+//
+//		return blockA == blockB && blockB.IsSolid() && IsBlockFaceVisible(b, direction, backFace);
+//	};
+//
+//	// Iterate over each face of the blocks.
+//	for (u8 face = 0; face < 6; face++) 
+//	{
+//		bool isBackFace = face > 2;
+//
+//		direction = face % 3;
+//		workAxis1 = (direction + 1) % 3;
+//		workAxis2 = (direction + 2) % 3;
+//
+//		startPos = glm::vec3();
+//		currPos = glm::vec3();
+//
+//		// Iterate over the chunk layer by layer.
+//		for (startPos[direction] = 0; startPos[direction] < sBlocks1D; startPos[direction]++)
+//		{
+//			memset(merged.data(), 0, sizeof(merged));
+//
+//			// Build the slices of the mesh.
+//			for (startPos[workAxis1] = 0; startPos[workAxis1] < sBlocks1D; startPos[workAxis1]++) {
+//				for (startPos[workAxis2] = 0; startPos[workAxis2] < sBlocks1D; startPos[workAxis2]++) {
+//					startBlock = &(*this)[startPos];
+//
+//					// If this block has already been merged, is air, or not visible skip it.
+//					if (merged[startPos[workAxis1]][startPos[workAxis2]] || !startBlock->IsSolid() || !IsBlockFaceVisible(startPos, direction, isBackFace)) 
+//					{
+//						continue;
+//					}
+//
+//					// reset work var
+//					quadSize = glm::vec3();
+//
+//					// Figure out the width, then save it
+//					for (currPos = startPos, currPos[workAxis2]++; currPos[workAxis2] < sBlocks1D && CompareStep(startPos, currPos, direction, isBackFace) && !merged[currPos[workAxis1]][currPos[workAxis2]]; currPos[workAxis2]++) {}
+//					quadSize[workAxis2] = currPos[workAxis2] - startPos[workAxis2];
+//
+//					// Figure out the height, then save it
+//					for (currPos = startPos, currPos[workAxis1]++; currPos[workAxis1] < sBlocks1D && CompareStep(startPos, currPos, direction, isBackFace) && !merged[currPos[workAxis1]][currPos[workAxis2]]; currPos[workAxis1]++) {
+//						for (currPos[workAxis2] = startPos[workAxis2]; currPos[workAxis2] < sBlocks1D && CompareStep(startPos, currPos, direction, isBackFace) && !merged[currPos[workAxis1]][currPos[workAxis2]]; currPos[workAxis2]++) {}
+//
+//						// If we didn't reach the end then its not a good add.
+//						if (currPos[workAxis2] - startPos[workAxis2] < quadSize[workAxis2]) {
+//							break;
+//						}
+//						else {
+//							currPos[workAxis2] = startPos[workAxis2];
+//						}
+//					}
+//					quadSize[workAxis1] = currPos[workAxis1] - startPos[workAxis1];
+//
+//					// Now we add the quad to the mesh
+//					m = glm::vec3();
+//					m[workAxis1] = quadSize[workAxis1];
+//					n = glm::vec3();
+//					n[workAxis2] = quadSize[workAxis2];
+//
+//					// We need to add a slight offset when working with front faces.
+//					offsetPos = startPos;
+//					offsetPos[direction] += isBackFace ? 0 : 1;
+//
+//					// cant use unordered map with pair, throws compile time error
+//					std::unordered_map<u8, glm::vec3> normals = {
+//						{ 0, { isBackFace ? -1.0f : 1.0f, 0.0f, 0.0f } },
+//						{ 1, { 0.0f, isBackFace ? -1.0f : 1.0f, 0.0f } },
+//						{ 2, { 0.0f, 0.0f, isBackFace ? -1.0f : 1.0f } },
+//					};
+//
+//					glm::vec3 normal = normals[direction];
+//					glm::vec2 uvOffset(0.0f);
+//
+//					// side
+//					//if (normal.x > 0.0f || normal.x < 0.0f || normal.z > 0.0f || normal.z < 0.0f)
+//					//{
+//					//	uvOffset = (Block::Map.at(startBlock->GetType()).mSide * 64.0f) / 1024.0f;
+//					//}
+//					//// top
+//					//else if (normal.y > 0.0f)
+//					//{
+//					//	uvOffset = (Block::Map.at(startBlock->GetType()).mTop * 64.0f) / 1024.0f;
+//					//}	
+//					//// bottom
+//					//else if (normal.y < 0.0f)
+//					//{
+//					//	uvOffset = (Block::Map.at(startBlock->GetType()).mBottom * 64.0f) / 1024.0f;
+//					//}
+//					
+//					if (normal.x > 0.0f || normal.x < 0.0f || normal.z > 0.0f || normal.z < 0.0f)
+//					{
+//						uvOffset = Block::Map.at(startBlock->GetType()).mSide;
+//					}
+//					// top
+//					else if (normal.y > 0.0f)
+//					{
+//						uvOffset = Block::Map.at(startBlock->GetType()).mTop;
+//					}
+//					// bottom
+//					else if (normal.y < 0.0f)
+//					{
+//						uvOffset = Block::Map.at(startBlock->GetType()).mBottom;
+//					}
+//
+//					glm::vec2 factor = isBackFace ? 
+//						glm::vec2{ quadSize[workAxis1], quadSize[workAxis2] } : glm::vec2{ quadSize[workAxis2], quadSize[workAxis1] };
+//
+//					vertices = {
+//						{ offsetPos, normal, { 1.0f, 1.0f }, uvOffset, factor },
+//						{ offsetPos + m, normal, { 1.0f, 0.0f }, uvOffset, factor },
+//						{ offsetPos + m + n, normal, { 0.0f, 0.0f }, uvOffset, factor },
+//						{ offsetPos + n, normal, { 0.0f, 1.0f }, uvOffset, factor }
+//					};
+//
+//					if (normal.z > 0.0f)
+//						vertices = {
+//							{ offsetPos, normal, { 0.0f, 0.0f }, uvOffset, factor },
+//							{ offsetPos + m, normal, { 1.0f, 0.0f }, uvOffset, factor },
+//							{ offsetPos + m + n, normal, { 1.0f, 1.0f }, uvOffset, factor },
+//							{ offsetPos + n, normal, { 0.0f, 1.0f }, uvOffset, factor }
+//					};
+//
+//					/*vertices = {
+//						{ offsetPos, normal, { 0.0f, 0.0f }, uvOffset },
+//						{ offsetPos + m, normal, { 1.0f, 0.0f }, uvOffset },
+//						{ offsetPos + m + n, { 1.0f, 1.0f }, uvOffset },
+//						{ offsetPos + n, normal, { 0.0f, 1.0f }, uvOffset }
+//					};*/
+//
+//					meshConstructor.AddQuad(vertices, isBackFace);
+//
+//					// Mark it merged
+//					for (int f = 0; f < quadSize[workAxis1]; f++) {
+//						for (int g = 0; g < quadSize[workAxis2]; g++) {
+//							merged[startPos[workAxis1] + f][startPos[workAxis2] + g] = true;
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	m_Mesh = meshConstructor.ToMesh();
+//}
 
 //void Chunk::GenerateMesh()
 //{	
@@ -282,5 +343,8 @@ void Chunk::Update()
 
 void Chunk::Render(Shader& shader)
 {
+	Game::Instance()->GetTextureMap().Bind();
+	shader.Set("uTexture", glm::uvec1(0));
 	m_Mesh->Render(shader);
+	Game::Instance()->GetTextureMap().Unbind();
 }

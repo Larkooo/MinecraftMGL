@@ -1,5 +1,7 @@
 #include "Graphics/MeshConstructor.h"
 
+#include <Graphics/Mesh.h>
+
 void MeshConstructor::AddQuad(const std::vector<Vertex>& vertices, bool isBackFace)
 {
 	if (vertices.size() != 4) {

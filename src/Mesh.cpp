@@ -22,7 +22,13 @@ Mesh::Mesh(std::initializer_list<Vertex> vertices, std::initializer_list<u32> in
 	// texture coordinates
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureCoord));
-	
+	// tile
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tile));
+	// factor
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, factor));
+
 	m_VBO.Unbind();
 	m_VAO.Unbind();
 }
@@ -46,6 +52,12 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices)
 	// texture coordinates
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureCoord));
+	// tile
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tile));
+	// factor
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, factor));
 
 	m_VBO.Unbind();
 	m_VAO.Unbind();
@@ -196,14 +208,15 @@ Mesh Mesh::Cube()
 
 void Mesh::Render(Shader& shader)
 {	
-	/*glPointSize(3.0f);*/
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
     shader.Bind();
 
     shader.Set("uProj", Game::Instance()->GetProjection());
     shader.Set("uView", Game::Instance()->GetWorld().GetPlayer().GetCamera().GetView());
 
 	m_VAO.Bind();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDrawElements(GL_TRIANGLES, (GLsizei)m_Vertices.size(), GL_UNSIGNED_INT, m_Indices.data());
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glLineWidth(10.0f);
 	glDrawElements(GL_TRIANGLES, (GLsizei) m_Vertices.size(), GL_UNSIGNED_INT, m_Indices.data());
 }

@@ -15,10 +15,10 @@ public:
 
 private:
 	std::array<Block*, sBlocks1D* sBlocks1D* sBlocks1D> m_Blocks;
-	Mesh* m_Mesh = nullptr;
+	//Mesh* m_Mesh = nullptr;
 
 public:
-	std::thread* mThread = nullptr;
+	//std::thread* mThread = nullptr;
 
 public:
 
@@ -26,7 +26,7 @@ public:
 
 	std::array<Block*, sBlocks1D * sBlocks1D * sBlocks1D>& GetBlocks() { return m_Blocks; }
 
-	void GenerateMesh();
+	//void GenerateMesh();
 
 	// update and render
 	void Update();

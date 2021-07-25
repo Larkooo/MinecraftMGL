@@ -9,14 +9,14 @@ class World
 {
 public:
 	// Number of chunks per dimension
-	static const u32 sChunks1D = 8;
+	static const u32 sChunks1D = 1;
 
 private:
 	Player m_Player;
 	std::array<Chunk*, sChunks1D * sChunks1D * sChunks1D> m_Chunks;
 
 public:
-	World() = default;
+	World() { m_Chunks = { nullptr }; }
 
 	Player& GetPlayer() { return m_Player; }
 

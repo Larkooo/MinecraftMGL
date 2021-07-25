@@ -1,6 +1,10 @@
 #pragma once
 
-#include "Mesh.h"
+#include "Definitions.h"
+
+#include <vector>
+
+class Mesh;
 
 class MeshConstructor
 {

@@ -22,7 +22,7 @@ Game::~Game()
 
 void Game::Init()
 {
-	if (not glfwInit())
+	if (!glfwInit())
 	{
 		std::cout << "Could not initialize glfw" << std::endl;
 		return;
@@ -54,16 +54,16 @@ void Game::Init()
 		Game::Instance()->GetWindow().SetHeight(width);
 		glViewport(0, 0, width, height);
 	};
-
 	glfwSetFramebufferSizeCallback(m_Window.GetGLFWWindow(), resizeCallback);
 
-	m_World->Init();
+	glActiveTexture(GL_TEXTURE0);
+	m_TextureMap = std::unique_ptr<Texture>(new Texture("./res/textures/texturemap_64x64.png"));
 
+	m_World->Init();
 	// Create the projection matrix using the player fov
 	m_Projection = glm::perspective(glm::radians(m_World->GetPlayer().GetCamera().GetFov()), (float)m_Window.GetWidth() / m_Window.GetHeight(), 0.1f, 1000.0f);
 
 	m_Now = std::chrono::high_resolution_clock::now();
-
 	m_Running = true;
 }
 
