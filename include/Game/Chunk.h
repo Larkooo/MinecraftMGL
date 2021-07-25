@@ -17,14 +17,11 @@ public:
 
 private:
 	glm::vec3 m_Position;
-	std::array<Block*, sBlocks1D* sBlocks1D* sBlocks1D> m_Blocks;
+	std::array<Block*, sBlocks1D* sBlocks1D* sBlocks1D> m_Blocks = { nullptr };
 	World* m_World = nullptr;
 
 	// mat4 is the model matrix and mat3x2 is the three tiles texture coordinates (top, side, bottom)
 	std::vector<std::pair<glm::mat4, glm::mat3x2>> m_InstancedBlocks;
-
-public:
-	//std::thread* mThread = nullptr;
 
 public:
 
@@ -39,6 +36,7 @@ public:
 
 	// update and render
 	void Update();
+	void GenerateBlocks();
 	void InstanceBlocks();
 	void Render(Shader& shader);
 

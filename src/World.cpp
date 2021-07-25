@@ -8,13 +8,19 @@
 
 #include <thread>
 
+World::World(i64 seed) : m_Seed(seed)
+{
+}
+
 World::~World()
 {
-	m_InstancingThread->join();
+	m_InstantiationThread->join();
 }
 
 void World::Init()
 {
+	srand(m_Seed);
+
 	for (u32 x = 0; x < sChunks1D; x++)
 	{
 		for (u32 y = 0; y < sChunks1D; y++)
@@ -27,7 +33,7 @@ void World::Init()
 	}
 
 	// block instancing thread
-	m_InstancingThread = std::make_unique<std::thread>(std::thread([&] {for (Chunk* chunk : m_Chunks) chunk->InstanceBlocks(); }));
+	m_InstantiationThread = std::make_unique<std::thread>(std::thread([&] {for (Chunk* chunk : m_Chunks) chunk->InstanceBlocks(); }));
 }
 
 void World::HandleEvents()
@@ -46,21 +52,8 @@ void World::Render()
 
 	shader.Bind();
 	
-	for (u32 x = 0; x < sChunks1D; x++)
-	{
-		for (u32 y = 0; y < sChunks1D; y++)
-		{
-			for (u32 z = 0; z < sChunks1D; z++)
-			{
-				/*glm::mat4 model(1.0f);
-				model = glm::translate(model, glm::vec3(x * Chunk::sBlocks1D, y * Chunk::sBlocks1D, z * Chunk::sBlocks1D));
-
-				shader.Set("uModel", model);*/
-
-				m_Chunks[x + sChunks1D * (y + sChunks1D * z)]->Render(shader);
-			}
-		}
-	}
+	for (Chunk* chunk : m_Chunks)
+		chunk->Render(shader);
 
 	shader.Unbind();
 }

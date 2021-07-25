@@ -138,74 +138,6 @@ Mesh Mesh::Cube()
     return Mesh(vertices, indices);
 }
 
-//Mesh Mesh::Cuboid(u32 width, u32 height, u32 depth)
-//{
-//	Vertex corners[8];
-//
-//	//corners[0] = Vertex()
-//
-//	std::initializer_list<Vertex> vertices = {
-//		// Back
-//	   { {-0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 0.f} },
-//	   { { 0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 0.f} },
-//	   { {-0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 1.f} },
-//	   { { 0.5f,  0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 0.f} },
-//	   { { 0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{0.f, 1.f} },
-//	   { {-0.5f, -0.5f, -0.5f},	{0.f, 0.f, -1.f},	{1.f, 1.f} },
-//
-//	   // Front
-//	   { { 0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 0.f} },
-//	   { {-0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 0.f} },
-//	   { {-0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 1.f} },
-//	   { { 0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 1.f} },
-//	   { { 0.5f,  0.5f,  0.5f},	{0.f, 0.f, 1.f},	{1.f, 0.f} },
-//	   { {-0.5f, -0.5f,  0.5f},	{0.f, 0.f, 1.f},	{0.f, 1.f} },
-//
-//	   // Left
-//	   { {-0.5f,  0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 0.f} },
-//	   { {-0.5f,  0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 0.f} },
-//	   { {-0.5f, -0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 1.f} },
-//	   { {-0.5f,  0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 0.f} },
-//	   { {-0.5f, -0.5f, -0.5f},	{-1.f, 0.f, 0.f},	{0.f, 1.f} },
-//	   { {-0.5f, -0.5f,  0.5f},	{-1.f, 0.f, 0.f},	{1.f, 1.f} },
-//
-//	   // Right
-//	   { { 0.5f,  0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 0.f} },
-//	   { { 0.5f,  0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 0.f} },
-//	   { { 0.5f, -0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 1.f} },
-//	   { { 0.5f, -0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 1.f} },
-//	   { { 0.5f,  0.5f, -0.5f},	{1.f, 0.f, 0.f},	{1.f, 0.f} },
-//	   { { 0.5f, -0.5f,  0.5f},	{1.f, 0.f, 0.f},	{0.f, 1.f} },
-//
-//	   // Top 
-//	   { { 0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{1.f, 0.f} },
-//	   { {-0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{0.f, 0.f} },
-//	   { {-0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{0.f, 1.f} },
-//	   { { 0.5f,  0.5f, -0.5f},	{0.f, 1.f, 0.f},	{1.f, 0.f} },
-//	   { {-0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{0.f, 1.f} },
-//	   { { 0.5f,  0.5f,  0.5f},	{0.f, 1.f, 0.f},	{1.f, 1.f} },
-//
-//	   // Bottom
-//	   { { 0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{0.f, 0.f} },
-//	   { {-0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{1.f, 1.f} },
-//	   { {-0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{1.f, 0.f} },
-//	   { { 0.5f, -0.5f, -0.5f},	{0.f, -1.f, 0.f},	{0.f, 0.f} },
-//	   { { 0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{0.f, 1.f} },
-//	   { {-0.5f, -0.5f,  0.5f},	{0.f, -1.f, 0.f},	{1.f, 1.f} }
-//	};
-//
-//	std::initializer_list<u32> indices = {
-//		0, 1, 2, 3, 4, 5,
-//		6, 7, 8, 9, 10, 11,
-//		12, 13, 14, 15, 16, 17,
-//		18, 19, 20, 21, 22, 23,
-//		24, 25, 26, 27, 28, 29,
-//		30, 31, 32, 33, 34, 35
-//	};
-//
-//	return Mesh(vertices, indices);
-//}
-
 void Mesh::Render(Shader& shader)
 {	
     shader.Bind();
@@ -214,9 +146,5 @@ void Mesh::Render(Shader& shader)
     shader.Set("uView", Game::Instance()->GetWorld().GetPlayer().GetCamera().GetView());
 
 	m_VAO.Bind();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDrawElements(GL_TRIANGLES, (GLsizei)m_Vertices.size(), GL_UNSIGNED_INT, m_Indices.data());
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glLineWidth(10.0f);
 	glDrawElements(GL_TRIANGLES, (GLsizei) m_Vertices.size(), GL_UNSIGNED_INT, m_Indices.data());
 }

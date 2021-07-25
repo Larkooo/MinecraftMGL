@@ -12,14 +12,17 @@ public:
 	static const u32 sChunks1D = 4;
 
 private:
+	i64 m_Seed;
+
 	Player m_Player;
 	std::array<Chunk*, sChunks1D* sChunks1D* sChunks1D> m_Chunks = { nullptr };
 
 	// instancing thread
-	std::unique_ptr<std::thread> m_InstancingThread = nullptr;
+	std::unique_ptr<std::thread> m_GenerationThread = nullptr;
+	std::unique_ptr<std::thread> m_InstantiationThread = nullptr;
 
 public:
-	World() = default;
+	World(i64 seed = 0);
 	~World();
 
 	Player& GetPlayer() { return m_Player; }

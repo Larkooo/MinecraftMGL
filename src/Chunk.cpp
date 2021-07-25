@@ -7,12 +7,24 @@
 #include <functional>
 #include <map>
 
+#include <glm/gtc/noise.hpp>
+
 Chunk::Chunk(World* world, glm::vec3 pos) : m_World(world), m_Position(pos)
 {
-	srand(time(0));
-	for (size_t i = 0; i < sBlocks1D * sBlocks1D * sBlocks1D; i++)
+}
+
+void Chunk::GenerateBlocks()
+{
+	for (u32 x = 0; x < sBlocks1D; x++)
 	{
-		m_Blocks[i] = new Block((Block::Type) (rand() % 4));
+		for (u32 y = 0; y < sBlocks1D; y++)
+		{
+			for (u32 z = 0; z < sBlocks1D; z++)
+			{
+				glm::vec3 worldPos{ (m_Position.x * sBlocks1D) + x, (m_Position.y * sBlocks1D) + y, (m_Position.z * sBlocks1D) + z };
+
+			}
+		}
 	}
 }
 
@@ -204,21 +216,24 @@ void Chunk::Update()
 
 void Chunk::Render(Shader& shader)
 {
+	// mat4 = model matrix, mat3x2 = 3 tiles, top, side and bottom
+	using BlockInstance = std::pair<glm::mat4, glm::mat3x2>;
+
 	static Mesh cubeMesh = Mesh::Cube();
 
 	cubeMesh.GetVAO().Bind();
 
-	VertexBuffer buffer(m_InstancedBlocks.data(), m_InstancedBlocks.size() * sizeof(std::pair<glm::mat4, glm::mat3x2>));
+	VertexBuffer buffer(m_InstancedBlocks.data(), m_InstancedBlocks.size() * sizeof(BlockInstance));
 
 	// model matrix
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), 0);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), 0);
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)sizeof(glm::vec4));
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)sizeof(glm::vec4));
 	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(2 * sizeof(glm::vec4)));
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(2 * sizeof(glm::vec4)));
 	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(3 * sizeof(glm::vec4)));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(3 * sizeof(glm::vec4)));
 
 	glVertexAttribDivisor(3, 1);
 	glVertexAttribDivisor(4, 1);
@@ -227,11 +242,11 @@ void Chunk::Render(Shader& shader)
 
 	// tiles
 	glEnableVertexAttribArray(7);
-	glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(sizeof(glm::mat4)));
+	glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4)));
 	glEnableVertexAttribArray(8);
-	glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(sizeof(glm::mat4) + sizeof(glm::vec2)));
+	glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4) + sizeof(glm::vec2)));
 	glEnableVertexAttribArray(9);
-	glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(std::pair<glm::mat4, glm::mat3x2>), (void*)(sizeof(glm::mat4) + (2 * sizeof(glm::vec2))));
+	glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4) + (2 * sizeof(glm::vec2))));
 
 	glVertexAttribDivisor(7, 1);
 	glVertexAttribDivisor(8, 1);
