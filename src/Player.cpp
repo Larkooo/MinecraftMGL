@@ -7,7 +7,7 @@ Player::Player(glm::vec3 position, glm::vec3 velocity) : m_Position(position), m
 
 void Player::HandleEvents()
 {
-	float deltaTime = Game::Instance()->GetDeltaTime().count();
+	const float deltaTime = Game::Instance()->GetDeltaTime().count();
 	GLFWwindow* window = Game::Instance()->GetWindow().GetGLFWWindow();
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

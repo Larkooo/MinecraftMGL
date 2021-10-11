@@ -2,7 +2,7 @@
 
 int main()
 {
-	Game game(Window("Window", 800, 600));
+	Game game(Window("Window", 1280, 720));
 
 	game.Init();
 

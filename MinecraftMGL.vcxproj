@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\MeshData.cpp" />
     <ClCompile Include="src\MeshConstructor.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Camera.cpp" />
@@ -473,6 +474,7 @@
     <ClInclude Include="include\Utils\stb_image.h" />
     <ClInclude Include="include\Graphics\Mesh.h" />
     <ClInclude Include="include\Graphics\MeshConstructor.h" />
+    <ClInclude Include="include\Graphics\MeshData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\glm\detail\func_common.inl" />
@@ -613,6 +615,8 @@
     <None Include="include\glm\gtx\wrap.inl" />
     <None Include="res\shaders\block.frag" />
     <None Include="res\shaders\block.vert" />
+    <None Include="res\shaders\debug.frag" />
+    <None Include="res\shaders\debug.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

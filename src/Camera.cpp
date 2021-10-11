@@ -1,6 +1,7 @@
 #include "Graphics\Camera.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 rotation, glm::vec3 worldUp, float fov) : m_Position(position), m_Rotation(rotation), m_WorldUp(worldUp), m_Fov(fov)
+Camera::Camera(glm::vec3 position, glm::vec3 rotation, glm::vec3 worldUp, float fov, float near, float far)
+	: m_Position(position), m_Rotation(rotation), m_WorldUp(worldUp), m_Fov(fov), m_zNear(near), m_zFar(far)
 {
 	UpdateVectors();
 }

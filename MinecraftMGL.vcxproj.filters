@@ -72,6 +72,9 @@
     <ClCompile Include="src\MeshConstructor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\MeshData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\glad\glad.h">
@@ -989,6 +992,9 @@
     <ClInclude Include="include\Graphics\MeshConstructor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Graphics\MeshData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\glm\detail\func_common.inl">
@@ -1401,5 +1407,7 @@
     </None>
     <None Include="res\shaders\block.vert" />
     <None Include="res\shaders\block.frag" />
+    <None Include="res\shaders\debug.vert" />
+    <None Include="res\shaders\debug.frag" />
   </ItemGroup>
 </Project>

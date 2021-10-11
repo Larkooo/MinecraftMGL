@@ -33,12 +33,12 @@ private:
 	Type m_Type;
 
 public:
-	Block(Type type = Type::DIRT) : m_Type(type) {};
+	Block(Type type = Type::AIR) : m_Type(type) {};
 
-	bool IsSolid() { return m_Type != Type::AIR; }
-	Type GetType() { return m_Type; }
+	bool IsSolid() const { return m_Type != Type::AIR; }
+	Type GetType() const { return m_Type; }
 
-	bool operator==(const Block& other)
+	bool operator==(const Block& other) const
 	{
 		return this->m_Type == other.m_Type;
 	}

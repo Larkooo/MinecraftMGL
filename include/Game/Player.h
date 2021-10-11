@@ -14,6 +14,8 @@ public:
 	Player(glm::vec3 position = { 0.0f, 0.0f, 0.0f }, glm::vec3 velocity = { 0.0f, 0.0f, 0.0f });
 
 	glm::vec3 GetPosition() const { return m_Position; }
+	void SetPosition(glm::vec3 pos) { m_Position = pos; }
+
 	glm::vec3 GetVelocity() const { return m_Velocity; }
 	Camera& GetCamera() { return m_Camera; }
 

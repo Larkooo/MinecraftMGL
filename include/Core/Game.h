@@ -13,6 +13,7 @@ class World;
 
 #include <Definitions.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 class Game
 {
@@ -48,7 +49,7 @@ public:
 	std::chrono::duration<float> GetDeltaTime() const { return m_DeltaTime; }
 	Texture& GetTextureMap() { return *m_TextureMap; }
 
-	bool IsRunning() { return m_Running; }
+	bool IsRunning() const { return m_Running; }
 
 	void Init();
 	

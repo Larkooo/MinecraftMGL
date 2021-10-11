@@ -6,12 +6,12 @@ Game* Game::sGame = nullptr;
 
 Game::Game(Window&& window) : m_Window(std::move(window))
 {
-	m_World = std::unique_ptr<World>(new World());
+	m_World = std::make_unique<World>();
 }
 
 Game::Game(const Window& window) : m_Window(window)
 {
-	m_World = std::unique_ptr<World>(new World());
+	m_World = std::make_unique<World>();
 }
 
 
@@ -39,10 +39,8 @@ void Game::Init()
 	glfwSetInputMode(m_Window.GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glViewport(0, 0, m_Window.GetWidth(), m_Window.GetHeight());
 
-	//glEnable(GL_CULL_
-	// 
-	// );
-	//glCullFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_CCW);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -57,11 +55,14 @@ void Game::Init()
 	glfwSetFramebufferSizeCallback(m_Window.GetGLFWWindow(), resizeCallback);
 
 	glActiveTexture(GL_TEXTURE0);
-	m_TextureMap = std::unique_ptr<Texture>(new Texture("./res/textures/texturemap_64x64.png"));
+	m_TextureMap = std::make_unique<Texture>("./res/textures/texturemap_64x64.png");
 
 	m_World->Init();
 	// Create the projection matrix using the player fov
-	m_Projection = glm::perspective(glm::radians(m_World->GetPlayer().GetCamera().GetFov()), (float)m_Window.GetWidth() / m_Window.GetHeight(), 0.1f, 1000.0f);
+	m_Projection = glm::perspective(
+		glm::radians(m_World->GetPlayer().GetCamera().GetFov()), 
+		(float)m_Window.GetWidth() / m_Window.GetHeight(), 
+		m_World->GetPlayer().GetCamera().GetNear(), m_World->GetPlayer().GetCamera().GetFar());
 
 	m_Now = std::chrono::high_resolution_clock::now();
 	m_Running = true;
@@ -80,8 +81,12 @@ void Game::HandleEvents()
 	m_Now = std::chrono::high_resolution_clock::now();
 	m_DeltaTime = m_Now - m_Last;
 
-	if (glfwWindowShouldClose(m_Window.GetGLFWWindow()) || glfwGetKey(m_Window.GetGLFWWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (glfwGetKey(m_Window.GetGLFWWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(m_Window.GetGLFWWindow(), true);
+
+	if (glfwWindowShouldClose(m_Window.GetGLFWWindow()))
 		m_Running = false;
+
 	m_World->HandleEvents();
 }
 
@@ -104,5 +109,4 @@ void Game::Render()
 void Game::Clean()
 {
 	glfwTerminate();
-	memset(m_Window.GetGLFWWindow(), 0, sizeof(m_Window.GetGLFWWindow()));
 }
