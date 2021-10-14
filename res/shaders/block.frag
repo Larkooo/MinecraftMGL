@@ -31,7 +31,7 @@ void main()
         tile = Tile[2];
     }
 
-    if (tile != -1)
+    if (tile != vec2(-1))
     {
         vec2 coords = tile + TexCoords;
         gl_FragColor = vec4(texture(uTexture, (coords * 64) / 1024).xyz + light, 1);
