@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <optional>
 
 #include <Definitions.h>
 
@@ -19,7 +20,7 @@ public:
     // program id
     uint32_t m_Id;
 
-    Shader(const std::string& vertexPath, const std::string& fragmentPath);
+    Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::reference_wrapper<std::string>> geometryPath = {});
     ~Shader();
 
     // use/activate the shader
