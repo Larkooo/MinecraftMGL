@@ -9,7 +9,7 @@
 
 #include <glm/gtc/noise.hpp>
 
-Chunk::Chunk(World* world, glm::vec3 pos) : m_Position(pos), m_World(world)
+Chunk::Chunk(World* world, glm::vec3 localPos, glm::vec3 worldPos) : m_LocalPosition(localPos), m_WorldPosition(worldPos), m_World(world)
 {
 	for (u32 i = 0; i < sBlocks1D * sBlocks1D * sBlocks1D; i++)
 		m_Blocks[i] = Block();
@@ -30,7 +30,7 @@ void Chunk::InstantiateBlocks()
 				glm::vec3 otherChunk, otherBlock;
 				if (frontBlock[saxis] < 0)
 				{
-					otherChunk = m_Position; otherChunk[saxis]--;
+					otherChunk = m_LocalPosition; otherChunk[saxis]--;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
@@ -44,7 +44,7 @@ void Chunk::InstantiateBlocks()
 				}
 				else if (frontBlock[saxis] > sBlocks1D - 1)
 				{
-					otherChunk = m_Position; otherChunk[saxis]++;
+					otherChunk = m_LocalPosition; otherChunk[saxis]++;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
@@ -59,7 +59,7 @@ void Chunk::InstantiateBlocks()
 
 				else if (backBlock[saxis] < 0)
 				{
-					otherChunk = m_Position; otherChunk[saxis]--;
+					otherChunk = m_LocalPosition; otherChunk[saxis]--;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
@@ -73,7 +73,7 @@ void Chunk::InstantiateBlocks()
 				}
 				else if (backBlock[saxis] > sBlocks1D - 1)
 				{
-					otherChunk = m_Position; otherChunk[saxis]++;
+					otherChunk = m_LocalPosition; otherChunk[saxis]++;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
@@ -195,7 +195,7 @@ void Chunk::InstantiateBlocks()
 					continue;
 
 				glm::mat4 model(1.0f);
-				model = glm::translate(model, { (m_Position.x * sBlocks1D) + x, (m_Position.y * sBlocks1D) + y, (m_Position.z * sBlocks1D) + z });
+				model = glm::translate(model, { m_WorldPosition.x + x, m_WorldPosition.y + y, m_WorldPosition.z + z });
 
 				Block::Type bType = (*this)[{ x, y, z }].GetType();
 
@@ -215,14 +215,14 @@ void Chunk::Render(Shader& shader)
 {
 	//GenerateMesh();
 
-	// mat4 = model matrix, mat3x2 = 3 tiles, top, side and bottom
+	// mat4 = model matrix, mat3x2 = 3 tiles; top, side and bottom
 	using BlockInstance = std::pair<glm::mat4, glm::mat3x2>;
 
 	static Mesh cubeMesh = Mesh::Cube();
 
 	cubeMesh.GetVAO().Bind();
 
-	VertexBuffer buffer(m_InstancedBlocks.data(), m_InstancedBlocks.size() * sizeof(BlockInstance));
+	VertexBuffer buffer(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size()) * sizeof(BlockInstance));
 
 	// model matrix9
 
@@ -260,11 +260,11 @@ void Chunk::Render(Shader& shader)
 	Game::Instance()->GetTextureMap().Bind();
 	shader.Set("uTexture", glm::uvec1{ 0 });
 
-	glDrawElementsInstanced(GL_TRIANGLES, cubeMesh.GetVertices().size(), GL_UNSIGNED_INT, cubeMesh.GetIndices().data(),
-	                        m_InstancedBlocks.size());
+	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(cubeMesh.GetVertices().size()), GL_UNSIGNED_INT, cubeMesh.GetIndices().data(),
+	                        static_cast<GLsizei>(m_InstancedBlocks.size()));
 
 	// chunk debug cube
-	static Shader debugShader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
+	/*static Shader debugShader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
 	debugShader.Bind();
 
 	debugShader.Set("uProj", Game::Instance()->GetProjection());
@@ -272,7 +272,7 @@ void Chunk::Render(Shader& shader)
 
 	glm::mat4 model(1.0f);
 	model = glm::scale(model , { sBlocks1D, sBlocks1D, sBlocks1D });
-	model = glm::translate(model, m_Position + (7.0f / static_cast<float>(sBlocks1D)));
+	model = glm::translate(model, m_WorldPosition);
 
 	debugShader.Set("uModel", model);
 
@@ -280,7 +280,7 @@ void Chunk::Render(Shader& shader)
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawElements(GL_TRIANGLES, cubeMesh.GetVertices().size(), GL_UNSIGNED_INT, cubeMesh.GetIndices().data());
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
 }
 
 void Chunk::GenerateMesh()

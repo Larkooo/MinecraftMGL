@@ -11,13 +11,13 @@ void Player::HandleEvents()
 	GLFWwindow* window = Game::Instance()->GetWindow().GetGLFWWindow();
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		m_Velocity += m_Camera.GetDirection() * 10.0f;
+		m_Velocity += m_Camera.GetDirection() * 50.0f;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		m_Velocity -= m_Camera.GetDirection() * 10.0f;
+		m_Velocity -= m_Camera.GetDirection() * 50.0f;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		m_Velocity -= m_Camera.GetRight() * 10.0f;
+		m_Velocity -= m_Camera.GetRight() * 50.0f;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		m_Velocity += m_Camera.GetRight() * 10.0f;
+		m_Velocity += m_Camera.GetRight() * 50.0f;
 
 	m_Velocity *= deltaTime;
 }

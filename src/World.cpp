@@ -16,12 +16,37 @@ World::World(i16 seed) : m_Seed(seed)
 World::~World()
 {
 	//m_InstantiationThread->join();
-	//m_GenerationThread->join();
+	m_GenerationThread->join();
 }
 
 void World::Init()
 {
 	srand(m_Seed);
+
+	m_Player.SetPosition({ rand() % 1000, (rand() % 30) + 10, rand() % 1000 });
+
+	Generate();
+
+	m_GenerationThread = std::make_unique<std::thread>([&]
+	{
+		while (Game::Instance()->IsRunning())
+			if (distance(m_Player.GetPosition(), static_cast<glm::vec3>(m_Chunks[0]->GetWorldPosition())) > 10000)
+				Generate();
+	});
+
+	//m_GenerationThread = std::make_unique<std::thread>(std::thread([&] {for (Chunk* chunk : m_Chunks) { chunk->GenerateBlocks(); chunk->InstantiateBlocks(); } }));
+	// block instancing thread
+	/*const auto bf = std::chrono::high_resolution_clock::now();
+	m_InstantiationThread = std::make_unique<std::thread>(std::thread([&] { }));
+	m_InstantiationThread->join();
+	const auto af = std::chrono::high_resolution_clock::now();*/
+
+	//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(af - bf).count() / 1000.0f << std::endl;
+}
+
+void World::Generate()
+{
+	glm::vec3 playerPos = m_Player.GetPosition();
 
 	// generate
 	for (u32 x = 0; x < sDimensions.x; x++)
@@ -30,7 +55,7 @@ void World::Init()
 		{
 			for (u32 z = 0; z < sDimensions.z; z++)
 			{
-				m_Chunks[x + sDimensions.x * (y + sDimensions.y * z)] = new Chunk(this, {x, y, z });
+				m_Chunks[x + sDimensions.x * (y + sDimensions.y * z)] = new Chunk(this, { x, y, z }, glm::vec3{ x, y, z } *(float)Chunk::sBlocks1D);
 				//m_Chunks[x + sChunks1D * (y + sChunks1D * z)]->GenerateBlocks();
 			}
 		}
@@ -49,7 +74,7 @@ void World::Init()
 			{
 				for (u32 z2 = 0; z2 < Chunk::sBlocks1D; z2++)
 				{
-					constexpr u32 maxHeight = (Chunk::sBlocks1D * sDimensions.y) / 1.5f;
+					constexpr u32 maxHeight = static_cast<u32>((Chunk::sBlocks1D * sDimensions.y) / 1.5f);
 					// between 0 and 1 (+ 1 / 2)
 					const float noise = (glm::simplex(glm::vec2(m_Seed + (x * Chunk::sBlocks1D) + x2, m_Seed + (z * Chunk::sBlocks1D) + z2) * 0.03f) + 1) / 2;
 					//printf("%f\n", noise);
@@ -66,7 +91,7 @@ void World::Init()
 									(*this)[{ x, y, z }][{ x2, y2, z2 }] = Block(Block::Type::STONE);
 								else
 									(*this)[{ x, y, z }][{ x2, y2, z2 }] = Block(Block::Type::DIRT);
-								
+
 						}
 					}
 				}
@@ -74,18 +99,8 @@ void World::Init()
 		}
 	}
 
-	m_Player.SetPosition({ (sDimensions.x / 2) * Chunk::sBlocks1D, sDimensions.y * Chunk::sBlocks1D, (sDimensions.x / 2) * Chunk::sBlocks1D });
-
-	//m_GenerationThread = std::make_unique<std::thread>(std::thread([&] {for (Chunk* chunk : m_Chunks) { chunk->GenerateBlocks(); chunk->InstantiateBlocks(); } }));
-	// block instancing thread
-	/*const auto bf = std::chrono::high_resolution_clock::now();
-	m_InstantiationThread = std::make_unique<std::thread>(std::thread([&] { }));
-	m_InstantiationThread->join();
-	const auto af = std::chrono::high_resolution_clock::now();*/
-
-	for (Chunk* chunk : m_Chunks) chunk->InstantiateBlocks();
-
-	//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(af - bf).count() / 1000.0f << std::endl;
+	for (Chunk* c : m_Chunks)
+		c->InstantiateBlocks();
 }
 
 void World::HandleEvents()
@@ -104,9 +119,8 @@ void World::Render()
 
 	shader.Bind();
 	
-	for (Chunk* chunk : m_Chunks)
-		//if (chunk->GetPosition())
-		chunk->Render(shader);
+	for (Chunk* c : m_Chunks)
+		c->Render(shader);
 
 	shader.Unbind();
 }

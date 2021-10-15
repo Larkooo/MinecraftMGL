@@ -16,7 +16,8 @@ public:
 	static const u16 sBlocks1D = 16;
 
 private:
-	glm::vec3 m_Position;
+	glm::uvec3 m_LocalPosition;
+	glm::uvec3 m_WorldPosition;
 	std::array<Block, sBlocks1D* sBlocks1D* sBlocks1D> m_Blocks;
 	World* m_World = nullptr;
 
@@ -28,10 +29,12 @@ private:
 
 public:
 
-	Chunk(World* world, glm::vec3 pos);
+	Chunk(World* world, glm::vec3 localPos, glm::vec3 worldPos);
 	Chunk() = delete;
 
-	glm::vec3 GetPosition() const { return m_Position; }
+	glm::uvec3 GetLocalPosition() const { return m_LocalPosition; }
+	glm::uvec3 GetWorldPosition() const { return m_WorldPosition; }
+
 	std::array<Block, sBlocks1D * sBlocks1D * sBlocks1D>& GetBlocks() { return m_Blocks; }
 	World& GetWorld() { return *m_World; }
 
@@ -47,7 +50,7 @@ public:
 	{
 		return m_Blocks[index];
 	}
-	Block& operator[](glm::vec3 position)
+	Block& operator[](glm::uvec3 position)
 	{
 		return m_Blocks[position.x + sBlocks1D * (position.y + sBlocks1D * position.z)];
 	}

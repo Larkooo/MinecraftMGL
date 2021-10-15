@@ -1,9 +1,13 @@
 #pragma once
 
 #include <array>
+#include <map>
 
 #include <Game/Chunk.h>
 #include <Game/Player.h>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/hash.hpp"
 
 class World
 {
@@ -15,10 +19,11 @@ private:
 	i16 m_Seed;
 
 	Player m_Player;
+	//std::unordered_map<glm::uvec3, Chunk*> m_Chunks;
 	std::array<Chunk*, sDimensions.x * sDimensions.y * sDimensions.z> m_Chunks = { nullptr };
 
 	// instancing thread
-	//std::unique_ptr<std::thread> m_GenerationThread = nullptr;
+	std::unique_ptr<std::thread> m_GenerationThread = nullptr;
 	// std::unique_ptr<std::thread> m_InstantiationThread = nullptr;
 
 public:
@@ -40,7 +45,7 @@ public:
 	{
 		return *m_Chunks[index];
 	}
-	Chunk& operator[](glm::vec3 position)
+	Chunk& operator[](glm::uvec3 position)
 	{
 		return *m_Chunks[position.x + sDimensions.x * (position.y + sDimensions.y * position.z)];
 	}

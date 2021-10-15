@@ -31,14 +31,10 @@ void main()
         tile = Tile[2];
     }
 
-    if (tile != vec2(-1))
-    {
-        vec2 coords = tile + TexCoords;
-        gl_FragColor = vec4(texture(uTexture, (coords * 64) / 1024).xyz + light, 1);
-        //gl_FragColor = vec4(gl_FragP, 1.0f);
-    }
-    else
-    {
-        gl_FragColor = vec4(vec3(0), 1);
-    }
+    if (tile == vec2(-1) || tile.x < 0 || tile.x > 15 || tile.y < 0 || tile.y > 15)
+        // no texture tile
+        tile = vec2(13, 13);
+
+    vec2 coords = tile + TexCoords;
+    gl_FragColor = vec4(texture(uTexture, (coords * 64) / 1024).xyz + light, 1);
 }
