@@ -45,6 +45,7 @@ public:
 	{
 		return *m_Chunks[index];
 	}
+	// Local chunk coordinate system
 	Chunk& operator[](glm::uvec3 position)
 	{
 		return *m_Chunks[position.x + sDimensions.x * (position.y + sDimensions.y * position.z)];

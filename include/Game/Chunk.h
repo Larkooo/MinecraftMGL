@@ -17,7 +17,7 @@ public:
 
 private:
 	glm::uvec3 m_LocalPosition;
-	glm::uvec3 m_WorldPosition;
+	glm::vec3 m_WorldPosition;
 	std::array<Block, sBlocks1D* sBlocks1D* sBlocks1D> m_Blocks;
 	World* m_World = nullptr;
 
@@ -33,7 +33,7 @@ public:
 	Chunk() = delete;
 
 	glm::uvec3 GetLocalPosition() const { return m_LocalPosition; }
-	glm::uvec3 GetWorldPosition() const { return m_WorldPosition; }
+	glm::vec3 GetWorldPosition() const { return m_WorldPosition; }
 
 	std::array<Block, sBlocks1D * sBlocks1D * sBlocks1D>& GetBlocks() { return m_Blocks; }
 	World& GetWorld() { return *m_World; }
