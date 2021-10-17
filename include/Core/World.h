@@ -13,14 +13,14 @@ class World
 {
 public:
 	// Number of chunks per dimension
-	static constexpr glm::uvec3 sDimensions = { 10, 4, 10 };
+	static constexpr glm::uvec2 sDimensions = { 10, 10 };
 
 private:
 	i16 m_Seed;
 
 	Player m_Player;
 	//std::unordered_map<glm::uvec3, Chunk*> m_Chunks;
-	std::array<Chunk*, sDimensions.x * sDimensions.y * sDimensions.z> m_Chunks = { nullptr };
+	std::array<Chunk*, sDimensions.x * sDimensions.y> m_Chunks = { nullptr };
 
 	// instancing thread
 	std::unique_ptr<std::thread> m_GenerationThread = nullptr;
@@ -36,19 +36,29 @@ public:
 	void Init();
 	void Generate();
 
+	// world coordinate system
+	Chunk& GetWorldChunk(glm::ivec2 position)
+	{
+		glm::ivec2 relativeToPlayer = { m_Player.GetPosition().x - position.x, m_Player.GetPosition().y - position.y };
+	}
+
 	// update and render
 	void HandleEvents();
 	void Update();
 	void Render();
 
-	Chunk& operator[](size_t index)
+	Chunk& operator[](size_t index) const
 	{
 		return *m_Chunks[index];
 	}
-	// Local chunk coordinate system
-	Chunk& operator[](glm::uvec3 position)
+	// Local coordinate system (around player)
+	Chunk& operator[](glm::uvec2 position) const
 	{
-		return *m_Chunks[position.x + sDimensions.x * (position.y + sDimensions.y * position.z)];
+		// wrapping around using modulo
+		position.x %= sDimensions.x;
+		position.y %= sDimensions.y;
+
+		return *m_Chunks[position.x + sDimensions.x * (position.y)];
 	}
 };
 

@@ -13,32 +13,35 @@ class World;
 class Chunk
 {
 public:
-	static const u16 sBlocks1D = 16;
+	static constexpr glm::uvec3 sDimensions = { 32, 256, 32 };
+
+	typedef std::array<Block, sDimensions.x* sDimensions.y* sDimensions.z> Blocks;
+	typedef std::pair<glm::mat4, glm::mat3x2> BlockInstance;
 
 private:
-	glm::uvec3 m_LocalPosition;
-	glm::vec3 m_WorldPosition;
-	std::array<Block, sBlocks1D* sBlocks1D* sBlocks1D> m_Blocks;
+	glm::uvec2 m_LocalPosition;
+	glm::vec2 m_WorldPosition;
+	Blocks m_Blocks;
 	World* m_World = nullptr;
 
 	// containing instanced blocks vertices
-	VertexBuffer* m_VBO = nullptr;
+	std::unique_ptr<VertexBuffer> m_VBO = nullptr;
 
 	// mat4 is the model matrix and mat3x2 is the three tiles texture coordinates (top, side, bottom)
 	std::vector<std::pair<glm::mat4, glm::mat3x2>> m_InstancedBlocks;
 
 public:
 
-	Chunk(World* world, glm::vec3 localPos, glm::vec3 worldPos);
+	Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos);
 	Chunk() = delete;
 
-	glm::uvec3 GetLocalPosition() const { return m_LocalPosition; }
-	glm::vec3 GetWorldPosition() const { return m_WorldPosition; }
+	glm::uvec2 GetLocalPosition() const { return m_LocalPosition; }
+	glm::vec2 GetWorldPosition() const { return m_WorldPosition; }
 
-	std::array<Block, sBlocks1D * sBlocks1D * sBlocks1D>& GetBlocks() { return m_Blocks; }
+	Blocks& GetBlocks() { return m_Blocks; }
 	World& GetWorld() { return *m_World; }
 
-	//void GenerateMesh();
+	void Generate();
 
 	// update and render
 	void Update();
@@ -52,6 +55,6 @@ public:
 	}
 	Block& operator[](glm::uvec3 position)
 	{
-		return m_Blocks[position.x + sBlocks1D * (position.y + sBlocks1D * position.z)];
+		return m_Blocks[position.x + sDimensions.x * (position.y + sDimensions.y * sDimensions.z)];
 	}
 };

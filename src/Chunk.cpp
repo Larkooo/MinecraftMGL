@@ -9,9 +9,9 @@
 
 #include <glm/gtc/noise.hpp>
 
-Chunk::Chunk(World* world, glm::vec3 localPos, glm::vec3 worldPos) : m_LocalPosition(localPos), m_WorldPosition(worldPos), m_World(world)
+Chunk::Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos) : m_LocalPosition(localPos), m_WorldPosition(worldPos), m_World(world)
 {
-	for (u32 i = 0; i < sBlocks1D * sBlocks1D * sBlocks1D; i++)
+	for (u32 i = 0; i < sDimensions.x * sDimensions.y * sDimensions.z; i++)
 		m_Blocks[i] = Block();
 }
 
@@ -22,19 +22,20 @@ void Chunk::InstantiateBlocks()
 		// 0 = x, 1 = y, 2 = z
 		for (u8 axis = 0; axis < 3; axis++)
 		{
-			glm::vec3 frontBlock = position, backBlock = position;
+			glm::ivec3 frontBlock = position, backBlock = position;
 			frontBlock[axis]++, backBlock[axis]--;
 
-			for (u8 saxis = 0; saxis < 3; saxis++)
+			for (u8 saxis = 0; saxis < 2; saxis++)
 			{
-				glm::vec3 otherChunk, otherBlock;
+				glm::ivec2 otherChunk;
+				glm::ivec3 otherBlock;
 				if (frontBlock[saxis] < 0)
 				{
 					otherChunk = m_LocalPosition; otherChunk[saxis]--;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
-					otherBlock = frontBlock; otherBlock[saxis] = sBlocks1D - 1;
+					otherBlock = frontBlock; otherBlock[saxis] = sDimensions[saxis] - 1;
 					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
 						return true;
 
@@ -42,7 +43,7 @@ void Chunk::InstantiateBlocks()
 						return true;
 					goto skip;
 				}
-				else if (frontBlock[saxis] > sBlocks1D - 1)
+				else if (frontBlock[saxis] > sDimensions[saxis] - 1)
 				{
 					otherChunk = m_LocalPosition; otherChunk[saxis]++;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
@@ -63,7 +64,7 @@ void Chunk::InstantiateBlocks()
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
-					otherBlock = backBlock; otherBlock[saxis] = sBlocks1D - 1;
+					otherBlock = backBlock; otherBlock[saxis] = sDimensions[saxis] - 1;
 					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
 						return true;
 
@@ -71,7 +72,7 @@ void Chunk::InstantiateBlocks()
 						return true;
 					goto skip;
 				}
-				else if (backBlock[saxis] > sBlocks1D - 1)
+				else if (backBlock[saxis] > sDimensions[saxis] - 1)
 				{
 					otherChunk = m_LocalPosition; otherChunk[saxis]++;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
@@ -185,11 +186,11 @@ void Chunk::InstantiateBlocks()
 	//	return false;
 	//};
 
-	for (u32 x = 0; x < sBlocks1D; x++)
+	for (u32 x = 0; x < sDimensions.x; x++)
 	{
-		for (u32 y = 0; y < sBlocks1D; y++)
+		for (u32 y = 0; y < sDimensions.y; y++)
 		{
-			for (u32 z = 0; z < sBlocks1D; z++)
+			for (u32 z = 0; z < sDimensions.z; z++)
 			{
 				if (!airBlockAround({ x, y, z }) || !(*this)[{ x, y, z }].IsSolid())
 					continue;
@@ -205,6 +206,19 @@ void Chunk::InstantiateBlocks()
 			}
 		}
 	}
+
+	m_VBO = std::make_unique<VertexBuffer>(VertexBuffer(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size()) * sizeof(BlockInstance)));
+}
+
+void Chunk::Generate()
+{
+	for (u32 x = 0; x < sDimensions.x; x++)
+	{
+		for (u32 z = 0; z < sDimensions.z; z++)
+		{
+			const u32 noise = glm::simplex(glm::vec2{x + m_WorldPosition.x, z + m_WorldPosition.z });
+		}
+	}
 }
 
 void Chunk::Update()
@@ -216,13 +230,10 @@ void Chunk::Render(Shader& shader)
 	//GenerateMesh();
 
 	// mat4 = model matrix, mat3x2 = 3 tiles; top, side and bottom
-	using BlockInstance = std::pair<glm::mat4, glm::mat3x2>;
 
 	static Mesh cubeMesh = Mesh::Cube();
 
 	cubeMesh.GetVAO().Bind();
-
-	VertexBuffer buffer(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size()) * sizeof(BlockInstance));
 
 	// model matrix9
 
@@ -288,11 +299,11 @@ void Chunk::GenerateMesh()
 	MeshData meshData;
 
 	// loop through voxels
-	for (u32 x = 0; x < sBlocks1D; x++)
+	for (u32 x = 0; x < sDimensions.x; x++)
 	{
-		for (u32 y = 0; y < sBlocks1D; y++)
+		for (u32 y = 0; y < sDimensions.y; y++)
 		{
-			for (u32 z = 0; z < sBlocks1D; z++)
+			for (u32 z = 0; z < sDimensions.z; z++)
 			{
 				// faces vertices
 				const Vertex cornersVertices[8] = {
