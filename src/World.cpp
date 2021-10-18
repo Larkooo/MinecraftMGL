@@ -7,6 +7,7 @@
 #include "Graphics/Mesh.h"
 
 #include <thread>
+#include "glm/gtc/integer.hpp"
 #include "glm/gtc/noise.hpp"
 
 World::World(i16 seed) : m_Seed(seed)
@@ -16,7 +17,8 @@ World::World(i16 seed) : m_Seed(seed)
 World::~World()
 {
 	//m_InstantiationThread->join();
-	m_GenerationThread->join();
+	if (m_GenerationThread != nullptr)
+		m_GenerationThread->join();
 }
 
 void World::Init()
@@ -25,8 +27,109 @@ void World::Init()
 
 	m_Player.SetPosition({ rand() % 1000, (rand() % 30) + 10, rand() % 1000 });
 
+	constexpr i32 startX = -(static_cast<i32>(sDimensions.x) / 2);
+	constexpr i32 startY = -(static_cast<i32>(sDimensions.y) / 2);
+
+	for (i32 x = startX; x < static_cast<i32>(sDimensions.x) / 2; x++)
+	{
+		for (i32 y = startY; y < static_cast<i32>(sDimensions.y) / 2; y++)
+		{
+			const glm::uvec2 localPos = { x + static_cast<i32>(sDimensions.x) / 2, y + static_cast<i32>(sDimensions.y) / 2 };
+			const glm::ivec2 worldPos = {
+				m_Player.GetPosition().x + (x * static_cast<i32>(Chunk::sDimensions.x)),
+				m_Player.GetPosition().z + (y * static_cast<i32>(Chunk::sDimensions.z))
+			};
+
+			m_Chunks[localPos.x + sDimensions.x * localPos.y] = new Chunk(
+				this, 
+				localPos,
+				worldPos
+			);
+		}
+	}
+
 	Generate();
 
+
+	m_GenerationThread = std::make_unique<std::thread>([&]()
+	{
+			while (Game::Instance()->IsRunning())
+			{
+				glm::vec2 playerPos = { m_Player.GetPosition().x, m_Player.GetPosition().z };
+
+				/*    
+				 *               1
+				 *    ---------
+				 *    |       |   0.5
+				 *    |       |   
+				 * 0   ---------
+				 *       0.5 
+				 */
+
+				u32 dist = 100;
+				// 0 0.5
+				if (glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x) > dist)
+				{
+					for (u32 y = 0; y < sDimensions.y; y++)
+					{
+						Chunk& chunk = (*this)[{ 0, y }];
+						chunk.SetWorldPosition({ playerPos.x + glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x), chunk.GetWorldPosition().y });
+						chunk.Generate();
+						chunk.InstantiateBlocks();
+						//chunk.InstantiateBlocks();
+					}
+				}
+				// 1 0.5
+				else if (glm::distance(playerPos.x, (float)(*this)[{ sDimensions.x - 1, sDimensions.y / 2 }].GetWorldPosition().x) > dist)
+				{
+					for (u32 y = 0; y < sDimensions.y; y++)
+					{
+						Chunk& chunk = (*this)[{ sDimensions.x - 1, y }];
+						chunk.SetWorldPosition({ playerPos.x - glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x), chunk.GetWorldPosition().y });
+						chunk.Generate();
+						chunk.InstantiateBlocks();
+						//chunk.InstantiateBlocks();
+					}
+				}
+				// 0.5 0
+				else if (glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, 0 }].GetWorldPosition().y) > dist)
+				{
+					for (u32 x = 0; x < sDimensions.x; x++)
+					{
+						Chunk& chunk = (*this)[{ x, 0 }];
+						chunk.SetWorldPosition({ chunk.GetWorldPosition().x, playerPos.y + glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, 0 }].GetWorldPosition().x) });
+						chunk.Generate();
+						chunk.InstantiateBlocks();
+						//chunk.InstantiateBlocks();
+					}
+				}
+				// 0.5 1
+				else if (glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, sDimensions.y - 1 }].GetWorldPosition().y) > dist)
+				{
+					for (u32 x = 0; x < sDimensions.x; x++)
+					{
+						Chunk& chunk = (*this)[{ x, sDimensions.y - 1 }];
+						chunk.SetWorldPosition({ chunk.GetWorldPosition().x, playerPos.y - glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, sDimensions.y - 1 }].GetWorldPosition().y) });
+						chunk.Generate();
+						chunk.InstantiateBlocks();
+						//chunk.InstantiateBlocks();
+					}
+				}
+
+
+
+				/*for (Chunk* c : m_Chunks)
+				{
+					const i32 distance = glm::distance(glm::ivec2{ m_Player.GetPosition().x, m_Player.GetPosition().z }, c->GetWorldPosition());
+					if (distance > sqrtf(powf(sDimensions.x * Chunk::sDimensions.x, 2) + powf(sDimensions.y * Chunk::sDimensions.z, 2)))
+					{
+						c->SetWorldPosition();
+						c->Generate();
+					}
+				}*/
+				std::this_thread::sleep_for(std::chrono::milliseconds(200)); // check every 500ms
+			}
+	});
 	/*m_GenerationThread = std::make_unique<std::thread>([&]
 	{
 		while (Game::Instance()->IsRunning())
@@ -66,7 +169,13 @@ void World::Init()
 void World::Generate()
 {
 	for (Chunk* c : m_Chunks)
+	{
 		c->Generate();
+	}
+	for (Chunk* c : m_Chunks)
+	{
+		c->InstantiateBlocks();
+	}
 	//glm::vec3 playerPos = m_Player.GetPosition();
 
 	//// generate
@@ -139,6 +248,8 @@ void World::HandleEvents()
 void World::Update()
 {
 	m_Player.Update();
+	for (Chunk* c : m_Chunks)
+		c->Update();
 }
 
 void World::Render()

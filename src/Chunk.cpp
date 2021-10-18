@@ -11,31 +11,77 @@
 
 Chunk::Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos) : m_LocalPosition(localPos), m_WorldPosition(worldPos), m_World(world)
 {
+	m_VBO = std::make_unique<VertexBuffer>();
+	/*u32 height = rand() % sDimensions.y;
+	for (u32 x = 0; x < sDimensions.x; x++)
+	{
+		for (u32 y = 0; y < sDimensions.y; y++)
+		{
+			for (u32 z = 0; z < sDimensions.z; z++)
+			{
+				if (y < height)
+					(*this)[{ x, y, z }] = Block(Block::Type::WOOD);
+				else
+					(*this)[{ x, y, z }] = Block();
+			}
+		}
+	}*/
+
+	/*for (u32 x = 0; x < sDimensions.x; x++)
+	{
+		for (u32 z = 0; z < sDimensions.z; z++)
+		{
+			const float noise = (glm::simplex(glm::vec2{x + m_WorldPosition.x, z + m_WorldPosition.y } * 0.002f) + 1) / 2.0f;
+
+			for (u32 y = 0; y < sDimensions.y; y++)
+			{
+				if (y < noise * sDimensions.y)
+					(*this)[{ x, y, z }] = Block(Block::Type::WOOD);
+				else
+					(*this)[{ x, y, z }] = Block();
+			}
+		}
+	}*/
+
 	for (u32 i = 0; i < sDimensions.x * sDimensions.y * sDimensions.z; i++)
+	{
 		m_Blocks[i] = Block();
+	}
 }
 
 void Chunk::InstantiateBlocks()
 {
+	m_InstancedBlocks.clear();
+
 	auto airBlockAround = [&](glm::vec3 position)
 	{
 		// 0 = x, 1 = y, 2 = z
 		for (u8 axis = 0; axis < 3; axis++)
 		{
 			glm::ivec3 frontBlock = position, backBlock = position;
-			frontBlock[axis]++, backBlock[axis]--;
+			frontBlock[axis]++; backBlock[axis]--;
 
+			if ((frontBlock.y < 0 || frontBlock.y > sDimensions.y - 1) || (backBlock.y < 0 || backBlock.y > sDimensions.y - 1))
+				return true;
+
+			// 0 = x, 1 = z
+			// ReSharper disable once IdentifierTypo
 			for (u8 saxis = 0; saxis < 2; saxis++)
 			{
 				glm::ivec2 otherChunk;
 				glm::ivec3 otherBlock;
-				if (frontBlock[saxis] < 0)
+
+				glm::u8 blockAxis = saxis;
+				if (saxis == 1)
+					blockAxis++;
+
+				if (frontBlock[blockAxis] < 0)
 				{
 					otherChunk = m_LocalPosition; otherChunk[saxis]--;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
-					otherBlock = frontBlock; otherBlock[saxis] = sDimensions[saxis] - 1;
+					otherBlock = frontBlock; otherBlock[blockAxis] = sDimensions[blockAxis] - 1;
 					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
 						return true;
 
@@ -43,13 +89,13 @@ void Chunk::InstantiateBlocks()
 						return true;
 					goto skip;
 				}
-				else if (frontBlock[saxis] > sDimensions[saxis] - 1)
+				if (frontBlock[blockAxis] > sDimensions[blockAxis] - 1)
 				{
 					otherChunk = m_LocalPosition; otherChunk[saxis]++;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
-					otherBlock = frontBlock; otherBlock[saxis] = 0;
+					otherBlock = frontBlock; otherBlock[blockAxis] = 0;
 					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
 						return true;
 
@@ -58,13 +104,13 @@ void Chunk::InstantiateBlocks()
 					goto skip;
 				}
 
-				else if (backBlock[saxis] < 0)
+				if (backBlock[blockAxis] < 0)
 				{
 					otherChunk = m_LocalPosition; otherChunk[saxis]--;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
-					otherBlock = backBlock; otherBlock[saxis] = sDimensions[saxis] - 1;
+					otherBlock = backBlock; otherBlock[blockAxis] = sDimensions[blockAxis] - 1;
 					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
 						return true;
 
@@ -72,13 +118,13 @@ void Chunk::InstantiateBlocks()
 						return true;
 					goto skip;
 				}
-				else if (backBlock[saxis] > sDimensions[saxis] - 1)
+				if (backBlock[blockAxis] > sDimensions[blockAxis] - 1)
 				{
 					otherChunk = m_LocalPosition; otherChunk[saxis]++;
 					if (otherChunk[saxis] < 0 || otherChunk[saxis] > World::sDimensions[saxis] - 1)
 						return true;
 
-					otherBlock = backBlock; otherBlock[saxis] = 0;
+					otherBlock = backBlock; otherBlock[blockAxis] = 0;
 					if (!(*m_World)[otherChunk][otherBlock].IsSolid())
 						return true;
 
@@ -94,6 +140,7 @@ void Chunk::InstantiateBlocks()
 		skip:
 			{}
 		}
+
 		return false;
 	};
 
@@ -195,8 +242,14 @@ void Chunk::InstantiateBlocks()
 				if (!airBlockAround({ x, y, z }) || !(*this)[{ x, y, z }].IsSolid())
 					continue;
 
+				//printf("haha\n");
+
 				glm::mat4 model(1.0f);
-				model = glm::translate(model, { m_WorldPosition.x + x, m_WorldPosition.y + y, m_WorldPosition.z + z });
+				model = glm::translate(model, { m_WorldPosition.x + x, y, m_WorldPosition.y + z });
+				/*model = glm::translate(model, {
+					(m_World->GetPlayer().GetPosition().x + (static_cast<i32>(m_LocalPosition.x) - static_cast<i32>(World::sDimensions.x / 2)) * static_cast<i32>(sDimensions.x)) + i32(x),
+					y,
+					(m_World->GetPlayer().GetPosition().z + (static_cast<i32>(m_LocalPosition.y) - static_cast<i32>(World::sDimensions.y / 2)) * static_cast<i32>(sDimensions.z)) + i32(z) });*/
 
 				Block::Type bType = (*this)[{ x, y, z }].GetType();
 
@@ -207,7 +260,8 @@ void Chunk::InstantiateBlocks()
 		}
 	}
 
-	m_VBO = std::make_unique<VertexBuffer>(VertexBuffer(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size()) * sizeof(BlockInstance)));
+	m_VBO->Bind();
+	glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
 }
 
 void Chunk::Generate()
@@ -216,13 +270,19 @@ void Chunk::Generate()
 	{
 		for (u32 z = 0; z < sDimensions.z; z++)
 		{
-			const u32 noise = glm::simplex(glm::vec2{x + m_WorldPosition.x, z + m_WorldPosition.z });
+			const float noise = (glm::simplex(glm::vec2{x + m_WorldPosition.x, z + m_WorldPosition.y } * 0.002f) + 1) / 2.0f;
+
+			for (u32 y = 0; y < noise * sDimensions.y; y++)
+			{
+				(*this)[{ x, y, z }] = Block(Block::Type::DIRT);
+			}
 		}
 	}
 }
 
 void Chunk::Update()
 {
+	
 }
 
 void Chunk::Render(Shader& shader)
@@ -234,6 +294,8 @@ void Chunk::Render(Shader& shader)
 	static Mesh cubeMesh = Mesh::Cube();
 
 	cubeMesh.GetVAO().Bind();
+
+	m_VBO->Bind();
 
 	// model matrix9
 

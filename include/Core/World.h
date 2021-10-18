@@ -47,18 +47,18 @@ public:
 	void Update();
 	void Render();
 
-	Chunk& operator[](size_t index) const
+	/*Chunk& operator[](size_t index) const
 	{
 		return *m_Chunks[index];
-	}
+	}*/
 	// Local coordinate system (around player)
-	Chunk& operator[](glm::uvec2 position) const
+	Chunk& operator[](glm::ivec2 position) const
 	{
 		// wrapping around using modulo
-		position.x %= sDimensions.x;
-		position.y %= sDimensions.y;
+		//position.x %= sDimensions.x;
+		//position.y %= sDimensions.y;
 
-		return *m_Chunks[position.x + sDimensions.x * (position.y)];
+		return *m_Chunks[position.x + sDimensions.x * position.y];
 	}
 };
 

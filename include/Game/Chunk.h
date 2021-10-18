@@ -20,7 +20,7 @@ public:
 
 private:
 	glm::uvec2 m_LocalPosition;
-	glm::vec2 m_WorldPosition;
+	glm::ivec2 m_WorldPosition;
 	Blocks m_Blocks;
 	World* m_World = nullptr;
 
@@ -36,10 +36,12 @@ public:
 	Chunk() = delete;
 
 	glm::uvec2 GetLocalPosition() const { return m_LocalPosition; }
-	glm::vec2 GetWorldPosition() const { return m_WorldPosition; }
+	glm::ivec2 GetWorldPosition() const { return m_WorldPosition; }
 
 	Blocks& GetBlocks() { return m_Blocks; }
 	World& GetWorld() { return *m_World; }
+
+	void SetWorldPosition(glm::ivec2 position) { m_WorldPosition = position; };
 
 	void Generate();
 
@@ -55,6 +57,6 @@ public:
 	}
 	Block& operator[](glm::uvec3 position)
 	{
-		return m_Blocks[position.x + sDimensions.x * (position.y + sDimensions.y * sDimensions.z)];
+		return m_Blocks[position.x + sDimensions.x * (position.y + sDimensions.y * position.z)];
 	}
 };

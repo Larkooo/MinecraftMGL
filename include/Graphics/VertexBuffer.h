@@ -8,13 +8,20 @@
 class VertexBuffer
 {
 	u32 m_Id;
+	u32 m_Size;
 
 public:
-	VertexBuffer(const void* data, u32 size);
 	VertexBuffer();
+	VertexBuffer(const void* data, u32 size);
+	VertexBuffer(const VertexBuffer& other);
+	VertexBuffer(VertexBuffer&& other) noexcept;
 	~VertexBuffer();
 
-	void Bind();
-	void Unbind();
+	void Bind() const;
+	void Unbind() const;
+
+
+	VertexBuffer& operator=(const VertexBuffer& other);
+	VertexBuffer& operator=(VertexBuffer&& other) noexcept;
 };
 
