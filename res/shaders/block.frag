@@ -5,6 +5,8 @@ in vec3 Normal;
 in vec2 TexCoords;
 in mat3x2 Tile;
 
+out vec4 FragColor;
+
 // Texture map
 uniform sampler2D uTexture;
 
@@ -36,5 +38,5 @@ void main()
         tile = vec2(13, 13);
 
     vec2 coords = tile + TexCoords;
-    gl_FragColor = vec4(texture(uTexture, (coords * 64) / 1024).xyz + light, 1);
+    FragColor = vec4(texture(uTexture, (coords * 64) / 1024).xyz + light, 1);
 }

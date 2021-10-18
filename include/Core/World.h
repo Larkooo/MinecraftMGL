@@ -13,7 +13,7 @@ class World
 {
 public:
 	// Number of chunks per dimension
-	static constexpr glm::uvec2 sDimensions = { 10, 10 };
+	static constexpr glm::uvec2 sDimensions = { 2, 2 };
 
 private:
 	i16 m_Seed;
