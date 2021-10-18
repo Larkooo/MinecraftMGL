@@ -66,14 +66,14 @@ void World::Init()
 				 *       0.5 
 				 */
 
-				u32 dist = 100;
+				u32 dist = 200;
 				// 0 0.5
 				if (glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x) > dist)
 				{
 					for (u32 y = 0; y < sDimensions.y; y++)
 					{
 						Chunk& chunk = (*this)[{ 0, y }];
-						chunk.SetWorldPosition({ playerPos.x + glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x), chunk.GetWorldPosition().y });
+						chunk.SetWorldPosition({ playerPos.x + glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x) * 2, chunk.GetWorldPosition().y });
 						chunk.Generate();
 						chunk.InstantiateBlocks();
 						//chunk.InstantiateBlocks();
@@ -85,7 +85,7 @@ void World::Init()
 					for (u32 y = 0; y < sDimensions.y; y++)
 					{
 						Chunk& chunk = (*this)[{ sDimensions.x - 1, y }];
-						chunk.SetWorldPosition({ playerPos.x - glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x), chunk.GetWorldPosition().y });
+						chunk.SetWorldPosition({ playerPos.x - glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x) * 2, chunk.GetWorldPosition().y });
 						chunk.Generate();
 						chunk.InstantiateBlocks();
 						//chunk.InstantiateBlocks();
@@ -97,7 +97,7 @@ void World::Init()
 					for (u32 x = 0; x < sDimensions.x; x++)
 					{
 						Chunk& chunk = (*this)[{ x, 0 }];
-						chunk.SetWorldPosition({ chunk.GetWorldPosition().x, playerPos.y + glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, 0 }].GetWorldPosition().x) });
+						chunk.SetWorldPosition({ chunk.GetWorldPosition().x, playerPos.y + glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, 0 }].GetWorldPosition().y) * 2 });
 						chunk.Generate();
 						chunk.InstantiateBlocks();
 						//chunk.InstantiateBlocks();
@@ -109,7 +109,7 @@ void World::Init()
 					for (u32 x = 0; x < sDimensions.x; x++)
 					{
 						Chunk& chunk = (*this)[{ x, sDimensions.y - 1 }];
-						chunk.SetWorldPosition({ chunk.GetWorldPosition().x, playerPos.y - glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, sDimensions.y - 1 }].GetWorldPosition().y) });
+						chunk.SetWorldPosition({ chunk.GetWorldPosition().x, playerPos.y - glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, sDimensions.y - 1 }].GetWorldPosition().y) * 2 });
 						chunk.Generate();
 						chunk.InstantiateBlocks();
 						//chunk.InstantiateBlocks();
@@ -127,7 +127,7 @@ void World::Init()
 						c->Generate();
 					}
 				}*/
-				std::this_thread::sleep_for(std::chrono::milliseconds(200)); // check every 500ms
+				std::this_thread::sleep_for(std::chrono::milliseconds(500)); // check every 500ms
 			}
 	});
 	/*m_GenerationThread = std::make_unique<std::thread>([&]
