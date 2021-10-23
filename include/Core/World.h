@@ -13,7 +13,7 @@ class World
 {
 public:
 	// Number of chunks per dimension
-	static constexpr glm::uvec2 sDimensions = { 16, 16 };
+	static constexpr glm::uvec2 sDimensions = { 8, 8 };
 
 private:
 	i16 m_Seed;
@@ -24,7 +24,7 @@ private:
 
 	// instancing thread
 	std::unique_ptr<std::thread> m_GenerationThread = nullptr;
-	// std::unique_ptr<std::thread> m_InstantiationThread = nullptr;
+	std::unique_ptr<std::thread> m_InstantiationThread = nullptr;
 
 public:
 	World(i16 seed = INT16_MAX);
@@ -35,12 +35,6 @@ public:
 	// generate the chunks
 	void Init();
 	void Generate();
-
-	// world coordinate system
-	Chunk& GetWorldChunk(glm::ivec2 position)
-	{
-		glm::ivec2 relativeToPlayer = { m_Player.GetPosition().x - position.x, m_Player.GetPosition().y - position.y };
-	}
 
 	// update and render
 	void HandleEvents();
@@ -55,8 +49,8 @@ public:
 	Chunk& operator[](glm::ivec2 position) const
 	{
 		// wrapping around using modulo
-		//position.x %= sDimensions.x;
-		//position.y %= sDimensions.y;
+		position.x %= sDimensions.x;
+		position.y %= sDimensions.y;
 
 		return *m_Chunks[position.x + sDimensions.x * position.y];
 	}

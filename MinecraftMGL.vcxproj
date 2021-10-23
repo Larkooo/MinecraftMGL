@@ -79,12 +79,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>include;$(IncludePath)</IncludePath>
-    <LibraryPath>libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>libs/vc2019;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>include;$(IncludePath)</IncludePath>
-    <LibraryPath>libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>libs/vc2019;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

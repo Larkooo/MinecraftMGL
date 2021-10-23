@@ -52,7 +52,9 @@ Chunk::Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos) : m_LocalPos
 
 void Chunk::InstantiateBlocks()
 {
+	//std::mutex mtx;
 
+	//mtx.lock();
 	m_InstancedBlocks.clear();
 
 	auto airBlockAround = [&](glm::vec3 position)
@@ -263,8 +265,7 @@ void Chunk::InstantiateBlocks()
 		}
 	}
 
-	m_Updated = true;
-
+	m_Instanced = true;
 	//m_VBO->Bind();
 	//glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
 	//m_VBO = std::make_unique<VertexBuffer>(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)));
@@ -276,7 +277,7 @@ void Chunk::Generate()
 	{
 		for (u32 z = 0; z < sDimensions.z; z++)
 		{
-			const float noise = (glm::simplex(glm::vec2{static_cast<i32>(x) + m_WorldPosition.x, static_cast<i32>(z) + m_WorldPosition.y } * 0.002f) + 1) / 2.0f;
+			const float noise = (glm::simplex(glm::vec2{ static_cast<i32>(x) + m_WorldPosition.x, static_cast<i32>(z) + m_WorldPosition.y } *0.002f) + 1) / 2.0f;
 
 			for (u32 y = 0; y < sDimensions.y; y++)
 			{
@@ -291,11 +292,11 @@ void Chunk::Generate()
 
 void Chunk::Update()
 {
-	if (m_Updated)
+	if (m_Instanced)
 	{
 		m_VBO->Bind();
 		glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
-		m_Updated = false;
+		m_Instanced = false;
 	}
 		
 }

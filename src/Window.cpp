@@ -41,7 +41,7 @@ void Window::Init()
 	
 	glfwMakeContextCurrent(m_Window);
 
-	if (not gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 	{
 		std::cout << "Failed to initialize OpenGL context" << std::endl;
 		return;

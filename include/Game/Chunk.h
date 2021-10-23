@@ -18,6 +18,9 @@ public:
 	typedef std::array<Block, sDimensions.x* sDimensions.y* sDimensions.z> Blocks;
 	typedef std::pair<glm::mat4, glm::mat3x2> BlockInstance;
 
+	// Chunk has been updated, needs to be instanced
+	bool m_Updated = false;
+
 private:
 	glm::uvec2 m_LocalPosition;
 	glm::ivec2 m_WorldPosition;
@@ -27,7 +30,7 @@ private:
 
 	// If we should update the vertexbuffer data,
 	// Chunk has been instanced
-	bool m_Updated = false;
+	bool m_Instanced = false;
 
 	// containing instanced blocks vertices
 	std::unique_ptr<VertexBuffer> m_VBO = nullptr;

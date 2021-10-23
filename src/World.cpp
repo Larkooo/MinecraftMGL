@@ -16,9 +16,10 @@ World::World(i16 seed) : m_Seed(seed)
 
 World::~World()
 {
-	//m_InstantiationThread->join();
 	if (m_GenerationThread != nullptr)
 		m_GenerationThread->join();
+	if (m_InstantiationThread != nullptr)
+		m_InstantiationThread->join();
 }
 
 void World::Init()
@@ -50,7 +51,7 @@ void World::Init()
 
 	Generate();
 
-
+	// chunk generation thread
 	m_GenerationThread = std::make_unique<std::thread>([&]()
 	{
 			while (Game::Instance()->IsRunning())
@@ -103,54 +104,44 @@ void World::Init()
 						continue;
 
 					c->Generate();
-					c->InstantiateBlocks();
- 				}
-
-				//if (change)
-				//	for (Chunk* c : m_Chunks)
-				//	{
-				//		std::cout << "lol" << std::endl;
-				//		c->InstantiateBlocks();
-				//	}
-						
-
+					c->m_Updated = true;
+				}
 				//std::this_thread::sleep_for(std::chrono::milliseconds(500)); // check every 500ms
 			}
 	});
-	/*m_GenerationThread = std::make_unique<std::thread>([&]
-	{
-		while (Game::Instance()->IsRunning())
-			for (Chunk* c : m_Chunks)
-			{
-				const glm::vec3 distance = m_Player.GetPosition() - c->GetWorldPosition();
-				if (distance.x > 100)
-				{
-					
-				}
-				else if (distance.z > 100)
-				{
 
+
+	// chunks instancing thread
+	m_InstantiationThread = std::make_unique<std::thread>(std::thread([&]
+	{
+			while (Game::Instance()->IsRunning())
+			{
+				for (Chunk* c : m_Chunks)
+				{
+					if (c->m_Updated)
+					{
+						// a bit overkill for now
+						// for xy
+						//for (u8 d = 0; d < 2; d++)
+						//{
+						//	
+						//	glm::ivec2 chunkPos = c->GetLocalPosition();
+
+						// back
+						//	chunkPos[d]--;
+						//	(*this)[chunkPos].InstantiateBlocks();
+
+						// front
+						//	chunkPos[d] += 2;
+						//	(*this)[chunkPos].InstantiateBlocks();
+						//}
+
+						c->InstantiateBlocks();
+						c->m_Updated = false;
+					}
 				}
 			}
-
-	});*/
-
-	/*m_GenerationThread = std::make_unique<std::thread>([&]
-		{
-			while (Game::Instance()->IsRunning())
-				if (glm::distance(m_Player.GetPosition(), m_Chunks[0]->GetWorldPosition()) > sDimensions.x * Chunk::sBlocks1D)
-					Generate();
-
-		});*/
-
-	//m_GenerationThread = std::make_unique<std::thread>(std::thread([&] {for (Chunk* chunk : m_Chunks) { chunk->GenerateBlocks(); chunk->InstantiateBlocks(); } }));
-	// block instancing thread
-	/*const auto bf = std::chrono::high_resolution_clock::now();
-	m_InstantiationThread = std::make_unique<std::thread>(std::thread([&] { }));
-	m_InstantiationThread->join();
-	const auto af = std::chrono::high_resolution_clock::now();*/
-
-	//std::cout << std::chrono::duration_cast<std::chrono::microseconds>(af - bf).count() / 1000.0f << std::endl;
+	}));
 }
 
 void World::Generate()
