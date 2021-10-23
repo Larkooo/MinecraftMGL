@@ -75,18 +75,30 @@ void World::Init()
 					const glm::ivec2 distance = static_cast<glm::ivec2>(playerPos) - chunkPos;
 
 					bool change = false;
-					if ((distance.x > static_cast<i32>(sDimensions.x * Chunk::sDimensions.x) / 2) || (distance.x < -static_cast<i32>(sDimensions.x * Chunk::sDimensions.x) / 2))
+					// x-axis
+					if ((distance.x > static_cast<i32>(sDimensions.x * Chunk::sDimensions.x) / 2))
 					{
-						c->SetWorldPosition({ chunkPos.x + (sDimensions.x * Chunk::sDimensions.x), chunkPos.y });
+						c->SetWorldPosition({ chunkPos.x + static_cast<i32>(sDimensions.x * Chunk::sDimensions.x), chunkPos.y });
 						change = true;
 					}
-						
-					if ((distance.y > static_cast<i32>(sDimensions.y * Chunk::sDimensions.z) / 2) || (distance.y < -static_cast<i32>(sDimensions.y * Chunk::sDimensions.z) / 2))
+					else if (distance.x < -static_cast<i32>(sDimensions.x * Chunk::sDimensions.x) / 2)
 					{
-						c->SetWorldPosition({ chunkPos.x, chunkPos.y + (sDimensions.y * Chunk::sDimensions.z) });
+						c->SetWorldPosition({ chunkPos.x - static_cast<i32>(sDimensions.x * Chunk::sDimensions.x), chunkPos.y });
 						change = true;
 					}
-						
+
+					// y-axis
+					if ((distance.y > static_cast<i32>(sDimensions.y * Chunk::sDimensions.z) / 2))
+					{
+						c->SetWorldPosition({ chunkPos.x, chunkPos.y + static_cast<i32>(sDimensions.y * Chunk::sDimensions.z) });
+						change = true;
+					}
+					else if (distance.y < -static_cast<i32>(sDimensions.y * Chunk::sDimensions.z) / 2)
+					{
+						c->SetWorldPosition({ chunkPos.x, chunkPos.y - static_cast<i32>(sDimensions.y * Chunk::sDimensions.z) });
+						change = true;
+					}
+
 					if (!change)
 						continue;
 
@@ -102,7 +114,7 @@ void World::Init()
 				//	}
 						
 
-				std::this_thread::sleep_for(std::chrono::milliseconds(500)); // check every 500ms
+				//std::this_thread::sleep_for(std::chrono::milliseconds(500)); // check every 500ms
 			}
 	});
 	/*m_GenerationThread = std::make_unique<std::thread>([&]

@@ -46,7 +46,11 @@ public:
 	Blocks& GetBlocks() { return m_Blocks; }
 	World& GetWorld() { return *m_World; }
 
-	void SetWorldPosition(glm::ivec2 position) { m_WorldPosition = position; };
+	void SetWorldPosition(glm::ivec2 position)
+	{
+		std::cout << position.x << " " << position.y << std::endl;
+		m_WorldPosition = position;
+	};
 
 	void Generate();
 

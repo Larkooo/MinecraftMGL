@@ -248,7 +248,7 @@ void Chunk::InstantiateBlocks()
 				//printf("haha\n");
 
 				glm::mat4 model(1.0f);
-				model = glm::translate(model, { m_WorldPosition.x + x, y, m_WorldPosition.y + z });
+				model = glm::translate(model, { m_WorldPosition.x + static_cast<i32>(x), y, m_WorldPosition.y + static_cast<i32>(z) });
 				/*model = glm::translate(model, {
 					(m_World->GetPlayer().GetPosition().x + (static_cast<i32>(m_LocalPosition.x) - static_cast<i32>(World::sDimensions.x / 2)) * static_cast<i32>(sDimensions.x)) + i32(x),
 					y,
@@ -276,7 +276,7 @@ void Chunk::Generate()
 	{
 		for (u32 z = 0; z < sDimensions.z; z++)
 		{
-			const float noise = (glm::simplex(glm::vec2{x + m_WorldPosition.x, z + m_WorldPosition.y } * 0.002f) + 1) / 2.0f;
+			const float noise = (glm::simplex(glm::vec2{static_cast<i32>(x) + m_WorldPosition.x, static_cast<i32>(z) + m_WorldPosition.y } * 0.002f) + 1) / 2.0f;
 
 			for (u32 y = 0; y < sDimensions.y; y++)
 			{
