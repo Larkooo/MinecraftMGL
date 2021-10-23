@@ -66,67 +66,42 @@ void World::Init()
 				 *       0.5 
 				 */
 
-				u32 dist = 200;
-				// 0 0.5
-				if (glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x) > dist)
-				{
-					for (u32 y = 0; y < sDimensions.y; y++)
-					{
-						Chunk& chunk = (*this)[{ 0, y }];
-						chunk.SetWorldPosition({ playerPos.x + glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x) * 2, chunk.GetWorldPosition().y });
-						chunk.Generate();
-						chunk.InstantiateBlocks();
-						//chunk.InstantiateBlocks();
-					}
-				}
-				// 1 0.5
-				else if (glm::distance(playerPos.x, (float)(*this)[{ sDimensions.x - 1, sDimensions.y / 2 }].GetWorldPosition().x) > dist)
-				{
-					for (u32 y = 0; y < sDimensions.y; y++)
-					{
-						Chunk& chunk = (*this)[{ sDimensions.x - 1, y }];
-						chunk.SetWorldPosition({ playerPos.x - glm::distance(playerPos.x, (float)(*this)[{ 0, sDimensions.y / 2 }].GetWorldPosition().x) * 2, chunk.GetWorldPosition().y });
-						chunk.Generate();
-						chunk.InstantiateBlocks();
-						//chunk.InstantiateBlocks();
-					}
-				}
-				// 0.5 0
-				else if (glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, 0 }].GetWorldPosition().y) > dist)
-				{
-					for (u32 x = 0; x < sDimensions.x; x++)
-					{
-						Chunk& chunk = (*this)[{ x, 0 }];
-						chunk.SetWorldPosition({ chunk.GetWorldPosition().x, playerPos.y + glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, 0 }].GetWorldPosition().y) * 2 });
-						chunk.Generate();
-						chunk.InstantiateBlocks();
-						//chunk.InstantiateBlocks();
-					}
-				}
-				// 0.5 1
-				else if (glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, sDimensions.y - 1 }].GetWorldPosition().y) > dist)
-				{
-					for (u32 x = 0; x < sDimensions.x; x++)
-					{
-						Chunk& chunk = (*this)[{ x, sDimensions.y - 1 }];
-						chunk.SetWorldPosition({ chunk.GetWorldPosition().x, playerPos.y - glm::distance(playerPos.y, (float)(*this)[{ sDimensions.y / 2, sDimensions.y - 1 }].GetWorldPosition().y) * 2 });
-						chunk.Generate();
-						chunk.InstantiateBlocks();
-						//chunk.InstantiateBlocks();
-					}
-				}
+			//	std::cout << playerPos.x << " " << playerPos.y << std::endl;
 
-
-
-				/*for (Chunk* c : m_Chunks)
+				for (Chunk* c : m_Chunks)
 				{
-					const i32 distance = glm::distance(glm::ivec2{ m_Player.GetPosition().x, m_Player.GetPosition().z }, c->GetWorldPosition());
-					if (distance > sqrtf(powf(sDimensions.x * Chunk::sDimensions.x, 2) + powf(sDimensions.y * Chunk::sDimensions.z, 2)))
+					glm::ivec2 chunkPos = c->GetWorldPosition();
+
+					const glm::ivec2 distance = static_cast<glm::ivec2>(playerPos) - chunkPos;
+
+					bool change = false;
+					if ((distance.x > static_cast<i32>(sDimensions.x * Chunk::sDimensions.x) / 2) || (distance.x < -static_cast<i32>(sDimensions.x * Chunk::sDimensions.x) / 2))
 					{
-						c->SetWorldPosition();
-						c->Generate();
+						c->SetWorldPosition({ chunkPos.x + (sDimensions.x * Chunk::sDimensions.x), chunkPos.y });
+						change = true;
 					}
-				}*/
+						
+					if ((distance.y > static_cast<i32>(sDimensions.y * Chunk::sDimensions.z) / 2) || (distance.y < -static_cast<i32>(sDimensions.y * Chunk::sDimensions.z) / 2))
+					{
+						c->SetWorldPosition({ chunkPos.x, chunkPos.y + (sDimensions.y * Chunk::sDimensions.z) });
+						change = true;
+					}
+						
+					if (!change)
+						continue;
+
+					c->Generate();
+					c->InstantiateBlocks();
+ 				}
+
+				//if (change)
+				//	for (Chunk* c : m_Chunks)
+				//	{
+				//		std::cout << "lol" << std::endl;
+				//		c->InstantiateBlocks();
+				//	}
+						
+
 				std::this_thread::sleep_for(std::chrono::milliseconds(500)); // check every 500ms
 			}
 	});

@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <array>
+#include <mutex>
 
 #include <glm/gtc/noise.hpp>
 
@@ -51,6 +52,7 @@ Chunk::Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos) : m_LocalPos
 
 void Chunk::InstantiateBlocks()
 {
+
 	m_InstancedBlocks.clear();
 
 	auto airBlockAround = [&](glm::vec3 position)
@@ -233,6 +235,7 @@ void Chunk::InstantiateBlocks()
 	//	return false;
 	//};
 
+	//std::cout << m_WorldPosition.x << " " << m_WorldPosition.y << std::endl;
 	for (u32 x = 0; x < sDimensions.x; x++)
 	{
 		for (u32 y = 0; y < sDimensions.y; y++)
@@ -260,8 +263,11 @@ void Chunk::InstantiateBlocks()
 		}
 	}
 
-	m_VBO->Bind();
-	glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
+	m_Updated = true;
+
+	//m_VBO->Bind();
+	//glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
+	//m_VBO = std::make_unique<VertexBuffer>(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)));
 }
 
 void Chunk::Generate()
@@ -272,9 +278,12 @@ void Chunk::Generate()
 		{
 			const float noise = (glm::simplex(glm::vec2{x + m_WorldPosition.x, z + m_WorldPosition.y } * 0.002f) + 1) / 2.0f;
 
-			for (u32 y = 0; y < noise * sDimensions.y; y++)
+			for (u32 y = 0; y < sDimensions.y; y++)
 			{
-				(*this)[{ x, y, z }] = Block(Block::Type::DIRT);
+				if (y < noise * sDimensions.y)
+					(*this)[{ x, y, z }] = Block(Block::Type::DIRT);
+				else
+					(*this)[{ x, y, z }] = Block(Block::Type::AIR);
 			}
 		}
 	}
@@ -282,7 +291,13 @@ void Chunk::Generate()
 
 void Chunk::Update()
 {
-	
+	if (m_Updated)
+	{
+		m_VBO->Bind();
+		glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
+		m_Updated = false;
+	}
+		
 }
 
 void Chunk::Render(Shader& shader)
@@ -290,12 +305,15 @@ void Chunk::Render(Shader& shader)
 	//GenerateMesh();
 
 	// mat4 = model matrix, mat3x2 = 3 tiles; top, side and bottom
+	//std::mutex mtx;
+	//mtx.lock();
 
 	static Mesh cubeMesh = Mesh::Cube();
 
 	cubeMesh.GetVAO().Bind();
 
 	m_VBO->Bind();
+	//VertexBuffer vbo(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)));
 
 	// model matrix9
 
@@ -335,6 +353,7 @@ void Chunk::Render(Shader& shader)
 
 	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(cubeMesh.GetVertices().size()), GL_UNSIGNED_INT, cubeMesh.GetIndices().data(),
 	                        static_cast<GLsizei>(m_InstancedBlocks.size()));
+	//mtx.unlock();
 
 	// chunk debug cube
 	/*static Shader debugShader("./res/shaders/debug.vert", "./res/shaders/debug.frag");

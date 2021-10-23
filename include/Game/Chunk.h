@@ -21,8 +21,13 @@ public:
 private:
 	glm::uvec2 m_LocalPosition;
 	glm::ivec2 m_WorldPosition;
+
 	Blocks m_Blocks;
 	World* m_World = nullptr;
+
+	// If we should update the vertexbuffer data,
+	// Chunk has been instanced
+	bool m_Updated = false;
 
 	// containing instanced blocks vertices
 	std::unique_ptr<VertexBuffer> m_VBO = nullptr;
