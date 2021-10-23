@@ -13,7 +13,7 @@ class World;
 class Chunk
 {
 public:
-	static constexpr glm::uvec3 sDimensions = { 32, 256, 32 };
+	static constexpr glm::uvec3 sDimensions = { 32, 128, 32 };
 
 	typedef std::array<Block, sDimensions.x* sDimensions.y* sDimensions.z> Blocks;
 	typedef std::pair<glm::mat4, glm::mat3x2> BlockInstance;

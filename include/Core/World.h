@@ -13,7 +13,7 @@ class World
 {
 public:
 	// Number of chunks per dimension
-	static constexpr glm::uvec2 sDimensions = { 8, 8 };
+	static constexpr glm::uvec2 sDimensions = { 20, 20 };
 
 private:
 	i16 m_Seed;
@@ -51,6 +51,11 @@ public:
 		// wrapping around using modulo
 		position.x %= sDimensions.x;
 		position.y %= sDimensions.y;
+
+		if (position.x < 0)
+			position.x += sDimensions.x;
+		if (position.y < 0)
+			position.y += sDimensions.y;
 
 		return *m_Chunks[position.x + sDimensions.x * position.y];
 	}

@@ -16,22 +16,23 @@ void MeshConstructor::AddQuad(const std::vector<Vertex>& vertices, bool isBackFa
 
 	if (!isBackFace) {
 		m_Indices.push_back(m_Vertices.size() - 4);
-		m_Indices.push_back(m_Vertices.size() - 3);
-		m_Indices.push_back(m_Vertices.size() - 2);
-
-		m_Indices.push_back(m_Vertices.size() - 4);
 		m_Indices.push_back(m_Vertices.size() - 2);
 		m_Indices.push_back(m_Vertices.size() - 1);
-	}
+
+		m_Indices.push_back(m_Vertices.size() - 1);
+		m_Indices.push_back(m_Vertices.size() - 3);
+		m_Indices.push_back(m_Vertices.size() - 4);
+	}	  
 	else {
-		m_Indices.push_back(m_Vertices.size() - 2);
-		m_Indices.push_back(m_Vertices.size() - 3);
 		m_Indices.push_back(m_Vertices.size() - 4);
-
+		m_Indices.push_back(m_Vertices.size() - 3);
+		m_Indices.push_back(m_Vertices.size() - 1);
+											  
 		m_Indices.push_back(m_Vertices.size() - 1);
 		m_Indices.push_back(m_Vertices.size() - 2);
 		m_Indices.push_back(m_Vertices.size() - 4);
 	}
+
 }
 
 Mesh* MeshConstructor::ToMesh()

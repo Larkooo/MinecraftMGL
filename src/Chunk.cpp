@@ -10,6 +10,8 @@
 
 #include <glm/gtc/noise.hpp>
 
+#include "Graphics/MeshConstructor.h"
+
 Chunk::Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos) : m_LocalPosition(localPos), m_WorldPosition(worldPos), m_World(world)
 {
 	m_VBO = std::make_unique<VertexBuffer>();
@@ -282,7 +284,12 @@ void Chunk::Generate()
 			for (u32 y = 0; y < sDimensions.y; y++)
 			{
 				if (y < noise * sDimensions.y)
-					(*this)[{ x, y, z }] = Block(Block::Type::DIRT);
+				{
+					if (y < (noise * sDimensions.y) / 3)
+						(*this)[{ x, y, z }] = Block(Block::Type::STONE);
+					else
+						(*this)[{ x, y, z }] = Block(Block::Type::DIRT);
+				}
 				else
 					(*this)[{ x, y, z }] = Block(Block::Type::AIR);
 			}
@@ -380,59 +387,144 @@ void Chunk::GenerateMesh()
 {
 	MeshData meshData;
 
-	// loop through voxels
-	for (u32 x = 0; x < sDimensions.x; x++)
-	{
-		for (u32 y = 0; y < sDimensions.y; y++)
+	constexpr glm::vec3 vertices[] = {
+		// back x
+		{ -1.0f,  1.0f, -1.0f },
+		{ -1.0f, -1.0f, -1.0f },
+		{ -1.0f,  1.0f,  1.0f },
+		{ -1.0f, -1.0f,  1.0f },
+
+		// front x
+		{ 1.0f,  1.0f, -1.0f },
+		{ 1.0f, -1.0f, -1.0f },
+		{ 1.0f,  1.0f,  1.0f },
+		{ 1.0f, -1.0f,  1.0f },
+	};
+	constexpr u8 indices[6][4] = {
+		// x-
+		{ 0, 1, 2, 3 },
+		// y-
+		{ 1, 3, 5, 7 },
+		// z-
+		{ 0, 1, 4, 5 },
+		// x+
+		{ 4, 5, 6, 7 },
+		// y+
+		{ 0, 2, 4, 6 },
+		// z+
+		{ 2, 3, 6, 7 },
+	};
+
+	MeshConstructor constructor;
+	// loop through each block
+	static auto lambda = [&]{
+		for (u32 x = 0; x < sDimensions.x; x++)
 		{
-			for (u32 z = 0; z < sDimensions.z; z++)
+			for (u32 y = 0; y < sDimensions.y; y++)
 			{
-				// faces vertices
-				const Vertex cornersVertices[8] = {
-					// bottom left back
-					{ { x, y, z }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
-					// bottom right back
-					{ { x + 1.0f, y, z }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
-					// top left back
-					{ { x, y + 1.0f, z }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
-					// top right back
-					{ { x + 1.0f, y + 1.0f, z }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f } },
-
-					// bottom left front
-					{ { x, y, z + 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-					// bottom right front
-					{ { x + 1.0f, y, z + 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-					// top left front
-					{ { x, y + 1.0f, z + 1.0f}, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-					// top right front
-					{ { x + 1.0f, y + 1.0f, z + 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-				};
-
-				const u8 facesIndices[6][4] = {
-					{ 0, 1, 2, 3 },
-					{ 4, 5, 6, 7 },
-					{ 0, 4, 2, 6 },
-					{ 1, 5, 3, 7 },
-					{ 2, 3, 6, 7 },
-					{ 7, 6, 3, 2 },
-				};
-
-				for (u8 face = 0; face < 6; face++)
+				for (u32 z = 0; z < sDimensions.z; z++)
 				{
-					auto vertices = std::array<Vertex, 4>();
-					for (u8 i = 0; i < 4; i++)
-						vertices[i] = cornersVertices[facesIndices[face][i]];
+					const glm::uvec3 blockPos = { x, y, z };
 
-					meshData.AddQuad(vertices);
+					if (!(*this)[blockPos].IsSolid())
+						continue;
+
+					// loop through each axis
+					// 0 = x-
+					// 1 = y-
+					// 2 = z-
+					// 3 = x+
+					// 4 = y+
+					// 5 = z+
+					for (u8 face = 0; face < 6; face++)
+					{
+						// 0 = x, 1 = y, 2 = z
+						u8 dir = face % 3;
+						bool backFace = face < 3;
+
+						// in each axis, check back and front
+
+						// back face
+						// check back block
+						glm::ivec3 otherBlockPos = blockPos;
+
+						backFace ? otherBlockPos[dir]--
+							: otherBlockPos[dir]++;
+
+						//goto skip;
+
+						// if it's a back face, check if it's below 0 in the x or z dir
+						// or if it's a front face, check if it's out of range
+						if ((otherBlockPos[dir] < 0
+							|| otherBlockPos[dir] > (static_cast<i32>(sDimensions[dir]) - 1)) && (dir == 0 || dir == 2))
+						{
+							glm::ivec2 otherChunkPos = m_LocalPosition;
+							if (dir == 0)
+								backFace ? otherChunkPos[0]--
+								: otherChunkPos[0]++;
+							else // if its 2, z coordinate in block coordinate system = y in chunk coord
+								backFace ? otherChunkPos[1]--
+								: otherChunkPos[1]++;
+
+							// check back chunk
+							glm::ivec3 otherChunkBlockPos = blockPos;
+							backFace ? otherChunkBlockPos[dir] = static_cast<i32>(sDimensions[dir]) - 1
+								: otherChunkBlockPos[dir] = 0;
+
+							if ((*this->m_World)[otherChunkPos][otherChunkBlockPos].IsSolid())
+							{
+								continue;
+							}
+							goto skip;
+						}
+
+						// if out of range in y
+						// since there are no top/bottom chunk, we want to draw it
+						if ((otherBlockPos[dir] < 0
+							|| otherBlockPos[dir] > static_cast<i32>(sDimensions[dir]) - 1))
+							goto skip;
+
+						
+						if ((*this)[otherBlockPos].IsSolid())
+							continue;
+
+						skip:
+						//std::array<Vertex, 4> quad = {};
+						std::vector<Vertex> quad;
+						for (u8 i = 0; i < 4; i++)
+						{
+							glm::vec3 normal(0.0f);
+							normal[dir] = backFace ? -1.0f : 1.0f;
+
+							/*quad[i] = {glm::vec3(blockPos) + vertices[indices[face][i]], normal, glm::vec2{} };*/
+							quad.push_back({ glm::vec3(blockPos) + vertices[indices[face][i]], normal, glm::vec2{} });
+						}
+						constructor.AddQuad(quad, backFace);
+					}
+
 				}
 			}
 		}
-	}
+		return 0;
+	}(); 
+
 	static Shader shader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
 	shader.Bind();
-	shader.Set("uModel", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f)));
 
-	meshData.ToMesh()->Render(shader);
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, { m_WorldPosition.x, 0, m_WorldPosition.y });
+	//model = glm::scale(model, glm::vec3(sDimensions));
+
+	shader.Set("uModel", model);
+	shader.Set("uProj", Game::Instance()->GetProjection());
+	shader.Set("uView", Game::Instance()->GetWorld().GetPlayer().GetCamera().GetView());
+
+	static Mesh* mesh = constructor.ToMesh();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	mesh->Render(shader);
+
+	//delete mesh;
 }
 
 //void Chunk::GenerateMesh()
