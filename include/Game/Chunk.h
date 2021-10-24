@@ -8,6 +8,7 @@
 
 #include "Definitions.h"
 
+class MeshConstructor;
 class World;
 
 class Chunk
@@ -19,8 +20,18 @@ public:
 	typedef std::pair<glm::mat4, glm::mat3x2> BlockInstance;
 
 	// Chunk has been updated, needs to be instanced
-	bool m_Updated = false;
+	bool mUpdated = false;
 
+	enum class Flag
+	{
+		IDLE,
+		GENERATING,
+		GENERATED,
+		MESH_CONSTRUCTED,
+		MESH_CREATED
+	};
+
+	Flag mFlag = Flag::IDLE;
 private:
 	glm::uvec2 m_LocalPosition;
 	glm::ivec2 m_WorldPosition;
@@ -28,12 +39,13 @@ private:
 	Blocks m_Blocks;
 	World* m_World = nullptr;
 
-	// If we should update the vertexbuffer data,
-	// Chunk has been instanced
-	bool m_Instanced = false;
+	// If we should create a mesh
+	bool m_MeshConstructed = false;
 
-	// containing instanced blocks vertices
-	std::unique_ptr<VertexBuffer> m_VBO = nullptr;
+	// a mesh constructor, to construct the mesh on a another thread
+	MeshConstructor* m_MeshConstructor = nullptr;
+	// the mesh, that we create on the main thread
+	std::unique_ptr<Mesh> m_Mesh = nullptr;
 
 	// mat4 is the model matrix and mat3x2 is the three tiles texture coordinates (top, side, bottom)
 	std::vector<std::pair<glm::mat4, glm::mat3x2>> m_InstancedBlocks;

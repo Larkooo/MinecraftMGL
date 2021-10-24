@@ -14,7 +14,7 @@
 
 Chunk::Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos) : m_LocalPosition(localPos), m_WorldPosition(worldPos), m_World(world)
 {
-	m_VBO = std::make_unique<VertexBuffer>();
+	//m_VBO = std::make_unique<VertexBuffer>();
 	/*u32 height = rand() % sDimensions.y;
 	for (u32 x = 0; x < sDimensions.x; x++)
 	{
@@ -266,8 +266,6 @@ void Chunk::InstantiateBlocks()
 			}
 		}
 	}
-
-	m_Instanced = true;
 	//m_VBO->Bind();
 	//glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
 	//m_VBO = std::make_unique<VertexBuffer>(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)));
@@ -275,6 +273,7 @@ void Chunk::InstantiateBlocks()
 
 void Chunk::Generate()
 {
+	mFlag = Flag::GENERATING;
 	for (u32 x = 0; x < sDimensions.x; x++)
 	{
 		for (u32 z = 0; z < sDimensions.z; z++)
@@ -295,15 +294,38 @@ void Chunk::Generate()
 			}
 		}
 	}
+	mFlag = Flag::GENERATED;
 }
 
 void Chunk::Update()
 {
-	if (m_Instanced)
+	/*if (m_Instanced)
 	{
 		m_VBO->Bind();
 		glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
 		m_Instanced = false;
+	}*/
+	if (mFlag == Flag::MESH_CONSTRUCTED)
+	{
+		// a bit overkill for now
+		// for xy
+		//for (u8 d = 0; d < 2; d++)
+		//{
+		//	
+		//	glm::ivec2 chunkPos = c->GetLocalPosition();
+
+		// back
+		//	chunkPos[d]--;
+		//	(*this)[chunkPos].InstantiateBlocks();
+
+		// front
+		//	chunkPos[d] += 2;
+		//	(*this)[chunkPos].InstantiateBlocks();
+		//}
+
+		m_Mesh = std::unique_ptr<Mesh>(m_MeshConstructor->ToMesh());
+		delete m_MeshConstructor;
+		mFlag = Flag::MESH_CREATED;
 	}
 		
 }
@@ -316,52 +338,63 @@ void Chunk::Render(Shader& shader)
 	//std::mutex mtx;
 	//mtx.lock();
 
-	static Mesh cubeMesh = Mesh::Cube();
+	//static Mesh cubeMesh = Mesh::Cube();
 
-	cubeMesh.GetVAO().Bind();
+	//cubeMesh.GetVAO().Bind();
 
-	m_VBO->Bind();
-	//VertexBuffer vbo(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)));
+	//m_VBO->Bind();
+	////VertexBuffer vbo(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)));
 
-	// model matrix9
+	//// model matrix9
 
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), 0);
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)sizeof(glm::vec4));
-	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(2 * sizeof(glm::vec4)));
-	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(3 * sizeof(glm::vec4)));
+	//glEnableVertexAttribArray(3);
+	//glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), 0);
+	//glEnableVertexAttribArray(4);
+	//glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)sizeof(glm::vec4));
+	//glEnableVertexAttribArray(5);
+	//glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(2 * sizeof(glm::vec4)));
+	//glEnableVertexAttribArray(6);
+	//glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(3 * sizeof(glm::vec4)));
 
-	glVertexAttribDivisor(3, 1);
-	glVertexAttribDivisor(4, 1);
-	glVertexAttribDivisor(5, 1);
-	glVertexAttribDivisor(6, 1);
+	//glVertexAttribDivisor(3, 1);
+	//glVertexAttribDivisor(4, 1);
+	//glVertexAttribDivisor(5, 1);
+	//glVertexAttribDivisor(6, 1);
 
-	// tiles
-	glEnableVertexAttribArray(7);
-	glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4)));
-	glEnableVertexAttribArray(8);
-	glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4) + sizeof(glm::vec2)));
-	glEnableVertexAttribArray(9);
-	glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4) + (2 * sizeof(glm::vec2))));
+	//// tiles
+	//glEnableVertexAttribArray(7);
+	//glVertexAttribPointer(7, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4)));
+	//glEnableVertexAttribArray(8);
+	//glVertexAttribPointer(8, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4) + sizeof(glm::vec2)));
+	//glEnableVertexAttribArray(9);
+	//glVertexAttribPointer(9, 2, GL_FLOAT, GL_FALSE, sizeof(BlockInstance), (void*)(sizeof(glm::mat4) + (2 * sizeof(glm::vec2))));
 
-	glVertexAttribDivisor(7, 1);
-	glVertexAttribDivisor(8, 1);
-	glVertexAttribDivisor(9, 1);
+	//glVertexAttribDivisor(7, 1);
+	//glVertexAttribDivisor(8, 1);
+	//glVertexAttribDivisor(9, 1);
 
-	shader.Bind();
+	//shader.Bind();
 
-	shader.Set("uProj", Game::Instance()->GetProjection());
-	shader.Set("uView", m_World->GetPlayer().GetCamera().GetView());
+	//shader.Set("uProj", Game::Instance()->GetProjection());
+	//shader.Set("uView", m_World->GetPlayer().GetCamera().GetView());
 
-	Game::Instance()->GetTextureMap().Bind();
-	shader.Set("uTexture", glm::uvec1{ 0 });
+	//Game::Instance()->GetTextureMap().Bind();
+	//shader.Set("uTexture", glm::uvec1{ 0 });
 
-	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(cubeMesh.GetVertices().size()), GL_UNSIGNED_INT, cubeMesh.GetIndices().data(),
-	                        static_cast<GLsizei>(m_InstancedBlocks.size()));
+	//glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(cubeMesh.GetVertices().size()), GL_UNSIGNED_INT, cubeMesh.GetIndices().data(),
+	//                        static_cast<GLsizei>(m_InstancedBlocks.size()));
 	//mtx.unlock();
+	if (mFlag != Flag::MESH_CREATED)
+		return;
+
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, { m_WorldPosition.x, 0, m_WorldPosition.y });
+	//glm::scale(model, { 5.0f, 5.0f, 5.0f });
+
+	shader.Set("uModel", model);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	m_Mesh->Render(shader);
 
 	// chunk debug cube
 	/*static Shader debugShader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
@@ -385,144 +418,145 @@ void Chunk::Render(Shader& shader)
 
 void Chunk::GenerateMesh()
 {
-	MeshData meshData;
-
 	constexpr glm::vec3 vertices[] = {
 		// back x
-		{ -1.0f,  1.0f, -1.0f },
-		{ -1.0f, -1.0f, -1.0f },
-		{ -1.0f,  1.0f,  1.0f },
-		{ -1.0f, -1.0f,  1.0f },
+		{ -0.5f, -0.5f, -0.5f },
+		{ -0.5f,  0.5f, -0.5f },
+		{  0.5f,  0.5f, -0.5f },
+		{  0.5f, -0.5f, -0.5f },
 
 		// front x
-		{ 1.0f,  1.0f, -1.0f },
-		{ 1.0f, -1.0f, -1.0f },
-		{ 1.0f,  1.0f,  1.0f },
-		{ 1.0f, -1.0f,  1.0f },
+		{ -0.5f, -0.5f, 0.5f },
+		{ -0.5f,  0.5f, 0.5f },
+		{  0.5f,  0.5f, 0.5f },
+		{  0.5f, -0.5f, 0.5f },
 	};
 	constexpr u8 indices[6][4] = {
 		// x-
-		{ 0, 1, 2, 3 },
+		{ 0, 1, 5, 4 },
 		// y-
-		{ 1, 3, 5, 7 },
+		{ 0, 4, 7, 3 },
 		// z-
-		{ 0, 1, 4, 5 },
+		{ 3, 2, 1, 0 },
+
 		// x+
-		{ 4, 5, 6, 7 },
+		{ 3, 2, 6, 7 },
 		// y+
-		{ 0, 2, 4, 6 },
+		{ 1, 5, 6, 2 },
 		// z+
-		{ 2, 3, 6, 7 },
+		{ 7, 6, 5, 4 },
 	};
 
-	MeshConstructor constructor;
+	m_MeshConstructor = new MeshConstructor();
 	// loop through each block
-	static auto lambda = [&]{
-		for (u32 x = 0; x < sDimensions.x; x++)
+	for (u32 x = 0; x < sDimensions.x; x++)
+	{
+		for (u32 y = 0; y < sDimensions.y; y++)
 		{
-			for (u32 y = 0; y < sDimensions.y; y++)
+			for (u32 z = 0; z < sDimensions.z; z++)
 			{
-				for (u32 z = 0; z < sDimensions.z; z++)
+				const glm::uvec3 blockPos = { x, y, z };
+
+				if (!(*this)[blockPos].IsSolid())
+					continue;
+
+				// loop through each axis
+				// 0 = x-
+				// 1 = y-
+				// 2 = z-
+				// 3 = x+
+				// 4 = y+
+				// 5 = z+
+				for (u8 face = 0; face < 6; face++)
 				{
-					const glm::uvec3 blockPos = { x, y, z };
+					// 0 = x, 1 = y, 2 = z
+					u8 dir = face % 3;
+					bool backFace = face < 3;
 
-					if (!(*this)[blockPos].IsSolid())
-						continue;
+					// in each axis, check back and front
 
-					// loop through each axis
-					// 0 = x-
-					// 1 = y-
-					// 2 = z-
-					// 3 = x+
-					// 4 = y+
-					// 5 = z+
-					for (u8 face = 0; face < 6; face++)
+					// back face
+					// check back block
+					glm::ivec3 otherBlockPos = blockPos;
+
+					backFace ? otherBlockPos[dir]--
+						: otherBlockPos[dir]++;
+
+					//goto skip;
+
+					// if it's a back face, check if it's below 0 in the x or z dir
+					// or if it's a front face, check if it's out of range
+					if ((otherBlockPos[dir] < 0
+						|| otherBlockPos[dir] > (static_cast<i32>(sDimensions[dir]) - 1)) && (dir == 0 || dir == 2))
 					{
-						// 0 = x, 1 = y, 2 = z
-						u8 dir = face % 3;
-						bool backFace = face < 3;
+						glm::ivec2 otherChunkPos = m_LocalPosition;
+						if (dir == 0)
+							backFace ? otherChunkPos[0]--
+							: otherChunkPos[0]++;
+						else // if its 2, z coordinate in block coordinate system = y in chunk coord
+							backFace ? otherChunkPos[1]--
+							: otherChunkPos[1]++;
 
-						// in each axis, check back and front
+						// check back chunk
+						glm::ivec3 otherChunkBlockPos = blockPos;
+						backFace ? otherChunkBlockPos[dir] = static_cast<i32>(sDimensions[dir]) - 1
+							: otherChunkBlockPos[dir] = 0;
 
-						// back face
-						// check back block
-						glm::ivec3 otherBlockPos = blockPos;
-
-						backFace ? otherBlockPos[dir]--
-							: otherBlockPos[dir]++;
-
-						//goto skip;
-
-						// if it's a back face, check if it's below 0 in the x or z dir
-						// or if it's a front face, check if it's out of range
-						if ((otherBlockPos[dir] < 0
-							|| otherBlockPos[dir] > (static_cast<i32>(sDimensions[dir]) - 1)) && (dir == 0 || dir == 2))
+						if ((*this->m_World)[otherChunkPos][otherChunkBlockPos].IsSolid())
 						{
-							glm::ivec2 otherChunkPos = m_LocalPosition;
-							if (dir == 0)
-								backFace ? otherChunkPos[0]--
-								: otherChunkPos[0]++;
-							else // if its 2, z coordinate in block coordinate system = y in chunk coord
-								backFace ? otherChunkPos[1]--
-								: otherChunkPos[1]++;
-
-							// check back chunk
-							glm::ivec3 otherChunkBlockPos = blockPos;
-							backFace ? otherChunkBlockPos[dir] = static_cast<i32>(sDimensions[dir]) - 1
-								: otherChunkBlockPos[dir] = 0;
-
-							if ((*this->m_World)[otherChunkPos][otherChunkBlockPos].IsSolid())
-							{
-								continue;
-							}
-							goto skip;
-						}
-
-						// if out of range in y
-						// since there are no top/bottom chunk, we want to draw it
-						if ((otherBlockPos[dir] < 0
-							|| otherBlockPos[dir] > static_cast<i32>(sDimensions[dir]) - 1))
-							goto skip;
-
-						
-						if ((*this)[otherBlockPos].IsSolid())
 							continue;
-
-						skip:
-						//std::array<Vertex, 4> quad = {};
-						std::vector<Vertex> quad;
-						for (u8 i = 0; i < 4; i++)
-						{
-							glm::vec3 normal(0.0f);
-							normal[dir] = backFace ? -1.0f : 1.0f;
-
-							/*quad[i] = {glm::vec3(blockPos) + vertices[indices[face][i]], normal, glm::vec2{} };*/
-							quad.push_back({ glm::vec3(blockPos) + vertices[indices[face][i]], normal, glm::vec2{} });
 						}
-						constructor.AddQuad(quad, backFace);
+						goto skip;
 					}
 
+					// if out of range in y
+					// since there are no top/bottom chunk, we want to draw it
+					if ((otherBlockPos[dir] < 0
+						|| otherBlockPos[dir] > static_cast<i32>(sDimensions[dir]) - 1))
+						goto skip;
+
+					
+					if ((*this)[otherBlockPos].IsSolid())
+						continue;
+
+					skip:
+					//std::array<Vertex, 4> quad = {};
+					std::vector<Vertex> quad;
+					for (u8 i = 0; i < 4; i++)
+					{
+						glm::vec3 normal(0.0f);
+						normal[dir] = backFace ? -1.0f : 1.0f;
+
+						/*quad[i] = {glm::vec3(blockPos) + vertices[indices[face][i]], normal, glm::vec2{} };*/
+						quad.push_back({ glm::vec3(blockPos) + vertices[indices[face][i]], normal, glm::vec2{} });
+					}
+					m_MeshConstructor->AddQuad(quad, backFace);
 				}
+
 			}
 		}
-		return 0;
-	}(); 
+	}
+	mFlag = Flag::MESH_CONSTRUCTED;
 
-	static Shader shader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
-	shader.Bind();
 
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, { m_WorldPosition.x, 0, m_WorldPosition.y });
-	//model = glm::scale(model, glm::vec3(sDimensions));
+	//m_Mesh = std::unique_ptr<Mesh>(constructor.ToMesh());
 
-	shader.Set("uModel", model);
-	shader.Set("uProj", Game::Instance()->GetProjection());
-	shader.Set("uView", Game::Instance()->GetWorld().GetPlayer().GetCamera().GetView());
+	//static Shader shader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
+	//shader.Bind();
 
-	static Mesh* mesh = constructor.ToMesh();
+	//glm::mat4 model(1.0f);
+	//model = glm::translate(model, { m_WorldPosition.x, 0, m_WorldPosition.y });
+	////model = glm::scale(model, glm::vec3(sDimensions));
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	mesh->Render(shader);
+	//shader.Set("uModel", model);
+	//shader.Set("uProj", Game::Instance()->GetProjection());
+	//shader.Set("uView", Game::Instance()->GetWorld().GetPlayer().GetCamera().GetView());
+
+	//Mesh* mesh = constructor.ToMesh();
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//mesh->GetVAO().Bind();
+	//glDrawElements(GL_TRIANGLES, mesh->GetIndices().size(), GL_UNSIGNED_INT, mesh->GetIndices().data());
 
 	//delete mesh;
 }

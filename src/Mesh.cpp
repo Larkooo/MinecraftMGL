@@ -5,9 +5,6 @@
 
 Mesh::Mesh(std::initializer_list<Vertex> vertices, std::initializer_list<u32> indices) : m_Vertices(vertices), m_Indices(indices)
 {
-	m_Vertices = vertices;
-	m_Indices = indices;
-
 	m_VAO.Bind();
 	
 	m_VBO.Bind();
@@ -33,11 +30,8 @@ Mesh::Mesh(std::initializer_list<Vertex> vertices, std::initializer_list<u32> in
 	m_VAO.Unbind();
 }
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices)
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices) : m_Vertices(vertices), m_Indices(indices)
 {
-	m_Vertices = vertices;
-	m_Indices = indices;
-
 	m_VAO.Bind();
 
 	m_VBO.Bind();
@@ -146,5 +140,5 @@ void Mesh::Render(Shader& shader)
     shader.Set("uView", Game::Instance()->GetWorld().GetPlayer().GetCamera().GetView());
 
 	m_VAO.Bind();
-	glDrawElements(GL_TRIANGLES, (GLsizei) m_Vertices.size(), GL_UNSIGNED_INT, m_Indices.data());
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, m_Indices.data());
 }

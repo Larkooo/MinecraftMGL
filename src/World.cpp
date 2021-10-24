@@ -103,8 +103,8 @@ void World::Init()
 					if (!change)
 						continue;
 
+					
 					c->Generate();
-					c->m_Updated = true;
 				}
 				//std::this_thread::sleep_for(std::chrono::milliseconds(500)); // check every 500ms
 			}
@@ -118,7 +118,7 @@ void World::Init()
 			{
 				for (Chunk* c : m_Chunks)
 				{
-					if (c->m_Updated)
+					if (c->mFlag == Chunk::Flag::GENERATED)
 					{
 						// a bit overkill for now
 						// for xy
@@ -136,8 +136,7 @@ void World::Init()
 						//	(*this)[chunkPos].InstantiateBlocks();
 						//}
 
-						c->InstantiateBlocks();
-						c->m_Updated = false;
+						c->GenerateMesh();
 					}
 				}
 			}
@@ -152,7 +151,7 @@ void World::Generate()
 	}
 	for (Chunk* c : m_Chunks)
 	{
-		c->InstantiateBlocks();
+		c->GenerateMesh();
 	}
 	//glm::vec3 playerPos = m_Player.GetPosition();
 
@@ -232,7 +231,7 @@ void World::Update()
 
 void World::Render()
 {
-	static Shader shader("./res/shaders/block.vert", "./res/shaders/block.frag");
+	static Shader shader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
 
 	shader.Bind();
 	
