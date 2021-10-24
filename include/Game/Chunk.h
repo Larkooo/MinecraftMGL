@@ -4,11 +4,11 @@
 #include <thread>
 
 #include "Block.h"
-#include "Graphics/Mesh.h"
 
-#include "Definitions.h"
+#include "Graphics/Shader.h"
 
 class MeshConstructor;
+class Mesh;
 class World;
 
 class Chunk
@@ -18,9 +18,6 @@ public:
 
 	typedef std::array<Block, sDimensions.x* sDimensions.y* sDimensions.z> Blocks;
 	typedef std::pair<glm::mat4, glm::mat3x2> BlockInstance;
-
-	// Chunk has been updated, needs to be instanced
-	bool mUpdated = false;
 
 	enum class Flag
 	{
@@ -38,9 +35,6 @@ private:
 
 	Blocks m_Blocks;
 	World* m_World = nullptr;
-
-	// If we should create a mesh
-	bool m_MeshConstructed = false;
 
 	// a mesh constructor, to construct the mesh on a another thread
 	MeshConstructor* m_MeshConstructor = nullptr;
@@ -63,7 +57,6 @@ public:
 
 	void SetWorldPosition(glm::ivec2 position)
 	{
-		std::cout << position.x << " " << position.y << std::endl;
 		m_WorldPosition = position;
 	};
 

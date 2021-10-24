@@ -1,6 +1,7 @@
 #include "Game/Chunk.h"
 
-#include "Graphics/MeshData.h"
+#include "Graphics/MeshConstructor.h"
+#include "Graphics/Mesh.h"
 #include "Core/Game.h"
 #include "Core/World.h"
 
@@ -9,8 +10,6 @@
 #include <mutex>
 
 #include <glm/gtc/noise.hpp>
-
-#include "Graphics/MeshConstructor.h"
 
 Chunk::Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos) : m_LocalPosition(localPos), m_WorldPosition(worldPos), m_World(world)
 {
