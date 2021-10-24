@@ -111,8 +111,8 @@ void World::Init()
 	});
 
 
-	// chunks instancing thread
-	m_InstantiationThread = std::make_unique<std::thread>(std::thread([&]
+	// mesh constructor thread
+	m_MeshingThread = std::make_unique<std::thread>(std::thread([&]
 	{
 			while (Game::Instance()->IsRunning())
 			{

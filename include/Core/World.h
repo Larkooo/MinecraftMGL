@@ -24,7 +24,7 @@ private:
 
 	// instancing thread
 	std::unique_ptr<std::thread> m_GenerationThread = nullptr;
-	std::unique_ptr<std::thread> m_InstantiationThread = nullptr;
+	std::unique_ptr<std::thread> m_MeshingThread = nullptr;
 
 public:
 	World(i16 seed = INT16_MAX);
