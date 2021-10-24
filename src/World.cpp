@@ -118,7 +118,7 @@ void World::Init()
 			{
 				for (Chunk* c : m_Chunks)
 				{
-					if (c->mFlag == Chunk::Flag::GENERATED)
+					if (c->GetFlag() == Chunk::Flag::GENERATED)
 					{
 						// a bit overkill for now
 						// for xy

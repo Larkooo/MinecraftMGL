@@ -13,38 +13,6 @@
 
 Chunk::Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos) : m_LocalPosition(localPos), m_WorldPosition(worldPos), m_World(world)
 {
-	//m_VBO = std::make_unique<VertexBuffer>();
-	/*u32 height = rand() % sDimensions.y;
-	for (u32 x = 0; x < sDimensions.x; x++)
-	{
-		for (u32 y = 0; y < sDimensions.y; y++)
-		{
-			for (u32 z = 0; z < sDimensions.z; z++)
-			{
-				if (y < height)
-					(*this)[{ x, y, z }] = Block(Block::Type::WOOD);
-				else
-					(*this)[{ x, y, z }] = Block();
-			}
-		}
-	}*/
-
-	/*for (u32 x = 0; x < sDimensions.x; x++)
-	{
-		for (u32 z = 0; z < sDimensions.z; z++)
-		{
-			const float noise = (glm::simplex(glm::vec2{x + m_WorldPosition.x, z + m_WorldPosition.y } * 0.002f) + 1) / 2.0f;
-
-			for (u32 y = 0; y < sDimensions.y; y++)
-			{
-				if (y < noise * sDimensions.y)
-					(*this)[{ x, y, z }] = Block(Block::Type::WOOD);
-				else
-					(*this)[{ x, y, z }] = Block();
-			}
-		}
-	}*/
-
 	for (u32 i = 0; i < sDimensions.x * sDimensions.y * sDimensions.z; i++)
 	{
 		m_Blocks[i] = Block();
@@ -272,7 +240,7 @@ void Chunk::InstantiateBlocks()
 
 void Chunk::Generate()
 {
-	mFlag = Flag::GENERATING;
+	m_Flag = Flag::GENERATING;
 	for (u32 x = 0; x < sDimensions.x; x++)
 	{
 		for (u32 z = 0; z < sDimensions.z; z++)
@@ -293,7 +261,7 @@ void Chunk::Generate()
 			}
 		}
 	}
-	mFlag = Flag::GENERATED;
+	m_Flag = Flag::GENERATED;
 }
 
 void Chunk::Update()
@@ -304,7 +272,7 @@ void Chunk::Update()
 		glBufferData(GL_ARRAY_BUFFER, static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)), m_InstancedBlocks.data(), GL_STATIC_DRAW);
 		m_Instanced = false;
 	}*/
-	if (mFlag == Flag::MESH_CONSTRUCTED)
+	if (m_Flag == Flag::MESH_CONSTRUCTED)
 	{
 		// a bit overkill for now
 		// for xy
@@ -324,13 +292,26 @@ void Chunk::Update()
 
 		m_Mesh = std::unique_ptr<Mesh>(m_MeshConstructor->ToMesh());
 		delete m_MeshConstructor;
-		mFlag = Flag::MESH_CREATED;
+		m_Flag = Flag::MESH_CREATED;
 	}
 		
 }
 
 void Chunk::Render(Shader& shader)
 {
+	// prevents "artifacts" from being rendered
+	if (m_Flag != Flag::MESH_CREATED)
+		return;
+
+	glm::mat4 model(1.0f);
+	model = glm::translate(model, { m_WorldPosition.x, 0, m_WorldPosition.y });
+	//glm::scale(model, { 5.0f, 5.0f, 5.0f });
+
+	shader.Set("uModel", model);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	m_Mesh->Render(shader);
+
 	//GenerateMesh();
 
 	// mat4 = model matrix, mat3x2 = 3 tiles; top, side and bottom
@@ -383,17 +364,6 @@ void Chunk::Render(Shader& shader)
 	//glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(cubeMesh.GetVertices().size()), GL_UNSIGNED_INT, cubeMesh.GetIndices().data(),
 	//                        static_cast<GLsizei>(m_InstancedBlocks.size()));
 	//mtx.unlock();
-	if (mFlag != Flag::MESH_CREATED)
-		return;
-
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, { m_WorldPosition.x, 0, m_WorldPosition.y });
-	//glm::scale(model, { 5.0f, 5.0f, 5.0f });
-
-	shader.Set("uModel", model);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	m_Mesh->Render(shader);
 
 	// chunk debug cube
 	/*static Shader debugShader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
@@ -535,7 +505,7 @@ void Chunk::GenerateMesh()
 			}
 		}
 	}
-	mFlag = Flag::MESH_CONSTRUCTED;
+	m_Flag = Flag::MESH_CONSTRUCTED;
 
 
 	//m_Mesh = std::unique_ptr<Mesh>(constructor.ToMesh());

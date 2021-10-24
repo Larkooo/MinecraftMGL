@@ -28,16 +28,17 @@ public:
 		MESH_CREATED
 	};
 
-	// what is the status of the chunk, is it generated? is it being generated?
-	// has it mesh been generated?
-	// used for multi threading operations
-	Flag mFlag = Flag::IDLE;
 private:
 	glm::uvec2 m_LocalPosition;
 	glm::ivec2 m_WorldPosition;
 
 	Blocks m_Blocks;
 	World* m_World = nullptr;
+
+	// what is the status of the chunk, is it generated? is it being generated?
+	// has it mesh been generated?
+	// used for multi threading operations
+	Flag m_Flag = Flag::IDLE;
 
 	// a mesh constructor, to construct the mesh on a another thread
 	MeshConstructor* m_MeshConstructor = nullptr;
@@ -51,6 +52,8 @@ public:
 
 	Chunk(World* world, glm::uvec2 localPos, glm::vec2 worldPos);
 	Chunk() = delete;
+
+	Flag GetFlag() const { return m_Flag; }
 
 	glm::uvec2 GetLocalPosition() const { return m_LocalPosition; }
 	glm::ivec2 GetWorldPosition() const { return m_WorldPosition; }
