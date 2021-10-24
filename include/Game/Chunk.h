@@ -28,6 +28,9 @@ public:
 		MESH_CREATED
 	};
 
+	// what is the status of the chunk, is it generated? is it being generated?
+	// has it mesh been generated?
+	// used for multi threading operations
 	Flag mFlag = Flag::IDLE;
 private:
 	glm::uvec2 m_LocalPosition;

@@ -18,8 +18,8 @@ World::~World()
 {
 	if (m_GenerationThread != nullptr)
 		m_GenerationThread->join();
-	if (m_InstantiationThread != nullptr)
-		m_InstantiationThread->join();
+	if (m_MeshingThread != nullptr)
+		m_MeshingThread->join();
 }
 
 void World::Init()
