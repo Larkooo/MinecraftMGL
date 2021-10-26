@@ -19,9 +19,9 @@ Mesh::Mesh(std::initializer_list<Vertex> vertices, std::initializer_list<u32> in
 	// texture coordinates
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureCoord));
-	//// tile
-	//glEnableVertexAttribArray(3);
-	//glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tile));
+	// tile
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tile));
 	//// factor
 	//glEnableVertexAttribArray(4);
 	//glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, factor));
@@ -46,9 +46,9 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices)
 	// texture coordinates
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureCoord));
-	//// tile
-	//glEnableVertexAttribArray(3);
-	//glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tile));
+	// tile
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tile));
 	//// factor
 	//glEnableVertexAttribArray(4);
 	//glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, factor));

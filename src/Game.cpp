@@ -39,8 +39,8 @@ void Game::Init()
 	glfwSetInputMode(m_Window.GetGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glViewport(0, 0, m_Window.GetWidth(), m_Window.GetHeight());
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_CCW);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_CCW);
 
 	glEnable(GL_DEPTH_TEST);
 

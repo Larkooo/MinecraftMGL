@@ -14,7 +14,7 @@ class World;
 class Chunk
 {
 public:
-	static constexpr glm::uvec3 sDimensions = { 32, 128, 32 };
+	static constexpr glm::uvec3 sDimensions = { 16, 128, 16 };
 
 	typedef std::array<Block, sDimensions.x* sDimensions.y* sDimensions.z> Blocks;
 	typedef std::pair<glm::mat4, glm::mat3x2> BlockInstance;
@@ -24,6 +24,7 @@ public:
 		IDLE,
 		GENERATING,
 		GENERATED,
+		MESH_CONSTRUCTING,
 		MESH_CONSTRUCTED,
 		MESH_CREATED
 	};
@@ -57,6 +58,8 @@ public:
 
 	glm::uvec2 GetLocalPosition() const { return m_LocalPosition; }
 	glm::ivec2 GetWorldPosition() const { return m_WorldPosition; }
+
+	Chunk& GetNeighbor(u8 direction, bool back) const;
 
 	Blocks& GetBlocks() { return m_Blocks; }
 	World& GetWorld() { return *m_World; }

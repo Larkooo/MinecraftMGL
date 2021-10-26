@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <mutex>
 #include <glm/glm.hpp>
 
 typedef uint64_t u64;
@@ -18,6 +19,5 @@ struct Vertex
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec2 textureCoord;
-	/*glm::vec2 tile;
-	glm::vec2 factor;*/
+	glm::vec2 tile;
 };

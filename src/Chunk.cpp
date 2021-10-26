@@ -7,7 +7,6 @@
 
 #include <functional>
 #include <array>
-#include <mutex>
 
 #include <glm/gtc/noise.hpp>
 
@@ -238,6 +237,14 @@ void Chunk::InstantiateBlocks()
 	//m_VBO = std::make_unique<VertexBuffer>(m_InstancedBlocks.data(), static_cast<u32>(m_InstancedBlocks.size() * sizeof(BlockInstance)));
 }
 
+Chunk& Chunk::GetNeighbor(u8 direction, bool back) const
+{
+	glm::ivec2 neighborPos = m_LocalPosition;
+	neighborPos[direction] += back ? -1 : 1;
+
+	return (*m_World)[neighborPos];
+}
+
 void Chunk::Generate()
 {
 	m_Flag = Flag::GENERATING;
@@ -309,7 +316,10 @@ void Chunk::Render(Shader& shader)
 
 	shader.Set("uModel", model);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	Game::Instance()->GetTextureMap().Bind();
+	shader.Set("uTexture", glm::uvec1{ 0 });
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	m_Mesh->Render(shader);
 
 	//GenerateMesh();
@@ -387,6 +397,8 @@ void Chunk::Render(Shader& shader)
 
 void Chunk::GenerateMesh()
 {
+	m_Flag = Flag::MESH_CONSTRUCTING;
+
 	constexpr glm::vec3 vertices[] = {
 		// back x
 		{ -0.5f, -0.5f, -0.5f },
@@ -489,15 +501,31 @@ void Chunk::GenerateMesh()
 						continue;
 
 					skip:
-					//std::array<Vertex, 4> quad = {};
+
+					constexpr glm::vec2 UVs[4] = {
+						{ 1.0f, 1.0f },
+						{ 1.0f, 0.0f },
+						{ 0.0f, 0.0f },
+						{ 0.0f, 1.0f },
+					};
+
+					glm::vec3 normal(0.0f);
+					normal[dir] = backFace ? -1.0f : 1.0f;
+
+					// determining tile
+					glm::vec2 tile;
+					if (dir == 0 || dir == 2)
+						tile = Block::Map.at((*this)[{x, y, z}].GetType()).mSide;
+					else if (!backFace)
+						tile = Block::Map.at((*this)[{x, y, z}].GetType()).mTop;
+					else
+						tile = Block::Map.at((*this)[{x, y, z}].GetType()).mBottom;
+
 					std::vector<Vertex> quad;
 					for (u8 i = 0; i < 4; i++)
 					{
-						glm::vec3 normal(0.0f);
-						normal[dir] = backFace ? -1.0f : 1.0f;
-
 						/*quad[i] = {glm::vec3(blockPos) + vertices[indices[face][i]], normal, glm::vec2{} };*/
-						quad.push_back({ glm::vec3(blockPos) + vertices[indices[face][i]], normal, glm::vec2{} });
+						quad.push_back({ glm::vec3(blockPos) + vertices[indices[face][i]], normal, UVs[i], tile });
 					}
 					m_MeshConstructor->AddQuad(quad, backFace);
 				}
@@ -506,7 +534,6 @@ void Chunk::GenerateMesh()
 		}
 	}
 	m_Flag = Flag::MESH_CONSTRUCTED;
-
 
 	//m_Mesh = std::unique_ptr<Mesh>(constructor.ToMesh());
 

@@ -71,6 +71,8 @@ void World::Init()
 
 				for (Chunk* c : m_Chunks)
 				{
+					if (c->GetFlag() == Chunk::Flag::MESH_CONSTRUCTING) continue; // avoid getting the threads stepping on each others work
+
 					glm::ivec2 chunkPos = c->GetWorldPosition();
 
 					const glm::ivec2 distance = static_cast<glm::ivec2>(playerPos) - chunkPos;
@@ -120,22 +122,14 @@ void World::Init()
 				{
 					if (c->GetFlag() == Chunk::Flag::GENERATED)
 					{
-						// a bit overkill for now
-						// for xy
-						//for (u8 d = 0; d < 2; d++)
-						//{
-						//	
-						//	glm::ivec2 chunkPos = c->GetLocalPosition();
+						/*for (u8 dir = 0; dir < 2; dir++)
+						{
+							Chunk& front = c->GetNeighbor(dir, false);
+							Chunk& back = c->GetNeighbor(dir, true);
 
-						// back
-						//	chunkPos[d]--;
-						//	(*this)[chunkPos].InstantiateBlocks();
-
-						// front
-						//	chunkPos[d] += 2;
-						//	(*this)[chunkPos].InstantiateBlocks();
-						//}
-
+							front.GenerateMesh();
+							back.GenerateMesh();
+						}*/
 						c->GenerateMesh();
 					}
 				}
@@ -231,7 +225,7 @@ void World::Update()
 
 void World::Render()
 {
-	static Shader shader("./res/shaders/debug.vert", "./res/shaders/debug.frag");
+	static Shader shader("./res/shaders/block.vert", "./res/shaders/block.frag");
 
 	shader.Bind();
 	
