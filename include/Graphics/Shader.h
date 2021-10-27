@@ -20,7 +20,7 @@ public:
     // program id
     uint32_t m_Id;
 
-    Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::optional<std::reference_wrapper<std::string>> geometryPath = {});
+    Shader(std::string_view vertexPath, std::string_view fragmentPath, std::optional<std::string_view> geometryPath = {});
     ~Shader();
 
     // use/activate the shader

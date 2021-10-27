@@ -1,6 +1,6 @@
 #include "Graphics/Shader.h"
 
-Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, std::optional<std::reference_wrapper<std::string>> geometryPath)
+Shader::Shader(std::string_view vertexPath, std::string_view fragmentPath, std::optional<std::string_view> geometryPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -13,8 +13,8 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, s
     try
     {
         // open files
-        vShaderFile.open(vertexPath);
-        fShaderFile.open(fragmentPath);
+        vShaderFile.open(vertexPath.data());
+        fShaderFile.open(fragmentPath.data());
         std::stringstream vShaderStream, fShaderStream;
         // read file's buffer contents into streams
         vShaderStream << vShaderFile.rdbuf();
@@ -38,7 +38,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, s
 	std::stringstream gShaderStream;
 	if (geometryPath)
 	{
-		gShaderFile.open(geometryPath->get());
+		gShaderFile.open(geometryPath->data());
 		gShaderStream << gShaderFile.rdbuf();
 		geometryCode = gShaderStream.str();
 		gShaderFile.close();
@@ -87,7 +87,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath, s
 		if (!success)
 		{
 			glGetShaderInfoLog(geometry, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED " << geometryPath->get() << "\n" << infoLog << std::endl;
+			std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED " << geometryPath->data() << "\n" << infoLog << std::endl;
 		};
 	}
 

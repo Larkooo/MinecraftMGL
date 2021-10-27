@@ -478,6 +478,18 @@ void Chunk::GenerateMesh()
 							backFace ? otherChunkPos[1]--
 							: otherChunkPos[1]++;
 
+						/*if (otherChunkPos[0] < 0 || otherChunkPos[0] > static_cast<i32>(World::sDimensions.x - 1)
+							|| otherChunkPos[1] < 0 || otherChunkPos[1] > static_cast<i32>(World::sDimensions.y - 1))
+							goto skip;*/
+
+						/*if (m_LocalPosition[0] == 0 || m_LocalPosition[0] == static_cast<i32>(World::sDimensions.x - 1)
+							|| m_LocalPosition[1] == 0 || m_LocalPosition[1] == static_cast<i32>(World::sDimensions.y - 1))
+							goto skip;*/
+
+						// if neighbor chunk is generating
+						if (static_cast<u32>((*this->m_World)[otherChunkPos].m_Flag) < 2)
+							goto skip;
+
 						// check back chunk
 						glm::ivec3 otherChunkBlockPos = blockPos;
 						backFace ? otherChunkBlockPos[dir] = static_cast<i32>(sDimensions[dir]) - 1
