@@ -5,13 +5,14 @@
 
 ### Implemented features
 #### Core
-- [x] World generation
+- [x] Infinite world generation (simplex)
 - [x] Different types of blocks
 - [ ] Plants
 - [ ] Different types of entities
 - [x] Textures (texture atlas)
 
 #### Graphics
+- [x] Dynamic meshing
 - [ ] Skybox
 - [x] Face lighting
 - [ ] Phong
