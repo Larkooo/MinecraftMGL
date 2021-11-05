@@ -9,8 +9,7 @@
 - [x] Different types of blocks
 - [ ] Plants
 - [ ] Different types of entities
-- [x] Textures
-- [x] Correctly spawn the player
+- [x] Textures (texture atlas)
 
 #### Graphics
 - [ ] Skybox
