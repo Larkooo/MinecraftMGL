@@ -1,17 +1,17 @@
 # MinecraftMGL
-## A minecraft clone made in modern OpenGL
+### A minecraft clone made in modern OpenGL
 
 
 
-### Implemented features
-#### Core
+#### Implemented features
+##### Core
 - [x] Infinite world generation (simplex)
 - [x] Different types of blocks
 - [ ] Plants
 - [ ] Different types of entities
 - [x] Textures (texture atlas)
 
-#### Graphics
+##### Graphics
 - [x] Dynamic meshing
 - [ ] Skybox
 - [x] Face lighting
@@ -19,7 +19,7 @@
 - [ ] Ambient occlusion
 - [ ] Shadows 
 
-#### Optimization
+##### Optimization
 - [x] Multi-threading (mesh and world generation)
 - [x] Face culling
 - [x] Occlusion culling
